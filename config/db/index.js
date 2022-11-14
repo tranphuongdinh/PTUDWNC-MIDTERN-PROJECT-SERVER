@@ -1,19 +1,19 @@
-const mongoose = require("mongoose");
-const { MDB_CONNECTION_STRING } = require("../../constants/common");
+import mongoose from "mongoose"
+import { MDB_CONNECTION_STRING } from "../../constants/common.js";
 
-async function connect() {
+async function DbConnect() {
   try {
-    console.log("Connect: " + MDB_CONNECTION_STRING);
+    console.log('Connect: ' + MDB_CONNECTION_STRING);
     await mongoose.connect(MDB_CONNECTION_STRING, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log("Connect MongoDB successfully!!!");
+    console.log('Connect MongoDB successfully!!!');
   } catch (error) {
-    console.log("Connect MongoDB failure!!!");
+    console.log('Connect MongoDB failure!!!');
     console.log(error);
     process.exit(1);
   }
 }
 
-module.exports = { connect };
+export default DbConnect;

@@ -1,54 +1,93 @@
-const User = require("../../models/user.model");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
+import User from '../../models/user.model.js';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 
-const { SECRET_TOKEN, STATUS } = require("../../constants/common");
+import { SECRET_TOKEN, STATUS } from '../../constants/common.js';
+import {
+  BAD_REQUEST_STATUS_CODE,
+  INTERNAL_SERVER_STATUS_CODE,
+  NOTFOUND_STATUS_CODE,
+  NOTFOUND_STATUS_MESSAGE,
+  SUCCESS_STATUS_CODE,
+  SUCCESS_STATUS_MESSAGE,
+} from '../../constants/http-response.js';
 
-const register = async (req, res) => {
+export const register = async (req, res) => {
+  const { email, name, password } = req.body;
   try {
     const user = await User.findOne({
-      email: req.body.email,
+      email,
     });
 
-    if (user) return res.status(400).json({ status: STATUS.ERROR, error: "Email is used!" });
+    if (user)
+      return res
+        .status(BAD_REQUEST_STATUS_CODE)
+        .json({ status: STATUS.ERROR, message: 'Email is used!' });
 
-    const newPassword = await bcrypt.hash(req.body.password, 10);
+    const newPassword = await bcrypt.hash(password, 10);
     await User.create({
-      name: req.body.name,
-      email: req.body.email,
+      name,
+      email,
       password: newPassword,
     });
 
-    return res.status(200).json({ status: STATUS.OK });
+    return res
+      .status(SUCCESS_STATUS_CODE)
+      .json({ status: STATUS.OK, message: SUCCESS_STATUS_MESSAGE });
   } catch (err) {
-    return res.status(400).json({ status: STATUS.ERROR, error: `Register failed: ${err}` });
+    return res.status(NOTFOUND_STATUS_CODE).json({
+      status: STATUS.ERROR,
+      message: `Register failed: ${err}`,
+    });
   }
 };
 
-const login = async (req, res) => {
-  const user = await User.findOne({
-    email: req.body.email,
-  });
+export const login = async (req, res) => {
+  const { email, password } = req.body;
 
-  if (!user) {
-    return { status: STATUS.ERROR, error: "Invalid email or password" };
-  }
+  try {
+    const user = await User.findOne({
+      email,
+    });
+    if (!user) {
+      return res
+        .status(NOTFOUND_STATUS_CODE)
+        .json({
+          status: STATUS.ERROR,
+          user: false,
+          message: 'Invalid email or password',
+        });
+    }
 
-  const isPasswordValid = await bcrypt.compare(req.body.password, user.password);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
-  if (isPasswordValid) {
-    const token = jwt.sign(
-      {
-        name: user.name,
-        email: user.email,
-      },
-      SECRET_TOKEN
-    );
+    if (isPasswordValid) {
+      const token = jwt.sign(
+        {
+          name: user.name,
+          email,
+        },
+        SECRET_TOKEN
+      );
 
-    return res.status(200).json({ status: STATUS.OK, user: token });
-  } else {
-    return res.status(400).json({ status: STATUS.ERROR, user: false, error: "Invalid email or password" });
+      return res
+        .status(SUCCESS_STATUS_CODE)
+        .json({
+          status: STATUS.OK,
+          message: SUCCESS_STATUS_MESSAGE,
+          user: token,
+        });
+    } else {
+      return res.status(NOTFOUND_STATUS_CODE).json({
+        status: STATUS.ERROR,
+        user: false,
+        message: 'Invalid email or password',
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res
+      .status(INTERNAL_SERVER_STATUS_CODE)
+      .json({ status: STATUS.ERROR, user: false, message: error.message });
   }
 };
-
-module.exports = { login, register };

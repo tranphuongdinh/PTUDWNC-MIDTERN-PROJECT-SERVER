@@ -1,7 +1,7 @@
-const authRoutes = require("../auth/auth.routes");
+import authRoutes from "../auth/auth.routes.js";
 
 const route = (app) => {
   app.use("/api", authRoutes);
 };
 
-module.exports = route;
+export default route;
