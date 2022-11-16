@@ -29,6 +29,9 @@ export const register = async (req, res) => {
       name,
       email,
       password: newPassword,
+      myGroupIds: [],
+      joinedGroupIds: [],
+      isActive: false
     });
 
     return res

@@ -6,4 +6,4 @@ export const STATUS = {
   ERROR: "ERROR",
 };
 
-export const MDB_CONNECTION_STRING = "mongodb+srv://dinhramos:dinhramos@cluster0.b2or8ib.mongodb.net/PTUDWNC";
+export const MDB_CONNECTION_STRING = "mongodb+srv://dinhramos:dinhramos@cluster0.b2or8ib.mongodb.net/dev";
