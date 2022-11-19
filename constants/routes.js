@@ -10,5 +10,5 @@ export const AUTH_ROUTE = {
 };
 
 export const USER_ROUTE = {
-  CURRENT_USER: '/user/current-user'
-}
+  CURRENT_USER: "/current-user",
+};

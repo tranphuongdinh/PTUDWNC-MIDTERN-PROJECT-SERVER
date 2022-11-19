@@ -18,6 +18,7 @@ const authenticationMiddleware = (req, res, next) => {
           .status(FORBIDDEN_STATUS_CODE)
           .json({ message: err.message });
       } else {
+        req.body.token = token
         next();
       }
     });

@@ -19,6 +19,9 @@ export const register = async (req, res) => {
       name,
       email,
       password: newPassword,
+      myGroupIds: [],
+      joinedGroupIds: [],
+      isActive: false
     });
 
     return res.status(SUCCESS_STATUS_CODE).json({ code: STATUS.OK, message: SUCCESS_STATUS_MESSAGE, data: [user] });
