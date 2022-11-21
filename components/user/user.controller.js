@@ -1,11 +1,11 @@
-import { SUCCESS_STATUS_CODE, NOTFOUND_STATUS_CODE } from "../../constants/http-response.js";
 import { STATUS } from "../../constants/common.js";
+import { NOTFOUND_STATUS_CODE, SUCCESS_STATUS_CODE } from "../../constants/http-response.js";
 
 export const getCurrentUser = (req, res) => {
   if (req.user) {
     return res.status(SUCCESS_STATUS_CODE).json({
       code: STATUS.OK,
-      data: [user],
+      data: [req.user],
       message: "Get user successfully",
     });
   } else {

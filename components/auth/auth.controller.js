@@ -21,7 +21,7 @@ export const register = async (req, res) => {
       password: newPassword,
       myGroupIds: [],
       joinedGroupIds: [],
-      isActive: false
+      isActive: false,
     });
 
     return res.status(SUCCESS_STATUS_CODE).json({ code: STATUS.OK, message: SUCCESS_STATUS_MESSAGE, data: [user] });
@@ -35,23 +35,6 @@ export const register = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  const user = req.user;
-
-  if (user) {
-    const access_token = jwt.sign({ ...user }, SECRET_TOKEN);
-
-    return res.status(SUCCESS_STATUS_CODE).json({
-      code: STATUS.OK,
-      data: [
-        {
-          ...user,
-          access_token,
-        },
-      ],
-      message: SUCCESS_STATUS_MESSAGE,
-    });
-  }
-
   const { email, password } = req.body;
 
   try {
@@ -70,20 +53,20 @@ export const login = async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (isPasswordValid) {
-      const access_token = jwt.sign({ ...user }, SECRET_TOKEN);
+      const access_token = jwt.sign({ user: user._doc }, SECRET_TOKEN);
 
       return res.status(SUCCESS_STATUS_CODE).json({
-        status: STATUS.OK,
+        code: STATUS.OK,
         message: SUCCESS_STATUS_MESSAGE,
         data: [
           {
-            ...user,
+            ...user._doc,
             access_token,
           },
         ],
       });
     } else {
-      return res.status(NOTFOUND_STATUS_CODE).json({
+      return res.status(BAD_REQUEST_STATUS_CODE).json({
         code: STATUS.ERROR,
         data: [],
         message: "Invalid email or password",
