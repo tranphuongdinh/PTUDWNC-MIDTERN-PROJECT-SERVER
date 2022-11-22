@@ -1,12 +1,8 @@
 export const AUTH_ROUTE = {
   REGISTER: "/register",
   LOGIN: "/login",
-  GITHUB_LOGIN_SUCCESS: "/auth/github/callback",
-  GITHUB_LOGIN: "/auth/github",
-  GOOGLE_LOGIN_SUCCESS: "/auth/google/callback",
-  GOOGLE_LOGIN: "/auth/google",
-  FACEBOOK_LOGIN_SUCCESS: "/auth/facebook/callback",
-  FACEBOOK_LOGIN: "/auth/facebook",
+  GITHUB_LOGIN: "/login/github",
+  GOOGLE_LOGIN: "/login/google",
 };
 
 export const USER_ROUTE = {

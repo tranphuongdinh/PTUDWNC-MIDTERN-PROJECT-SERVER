@@ -3,7 +3,6 @@ import cors from "cors";
 import express from "express";
 import route from "./components/root/root.route.js";
 import DbConnect from "./config/db/index.js";
-import passportSetup from "./config/passport/index.js";
 import { PORT } from "./constants/common.js";
 const app = express();
 
@@ -13,9 +12,6 @@ app.use(cookieSession({ name: "session", keys: ["ptudwnc-midterm"], maxAge: 24 *
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(cors());
-
-app.use(passportSetup.initialize());
-app.use(passportSetup.session());
 
 route(app);
 

@@ -1,0 +1,6 @@
+export const GOOGLE_CLIENT_ID = "77704610385-n00oufvjpndmtou8u3kv5pb2tbjc7kle.apps.googleusercontent.com";
+export const GOOGLE_CLIENT_SECRET = "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";
+export const GITHUB_CLIENT_ID = "8f4d473c2a50050d500b";
+export const GITHUB_CLIENT_SECRET = "e856cf4172d87548523c7d10031379727b25d478";
+
+export default { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET };
