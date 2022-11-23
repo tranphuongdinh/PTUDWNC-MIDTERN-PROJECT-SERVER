@@ -47,7 +47,7 @@ export const createGroup = async (req, res) => {
   let ownerUser;
 
   try {
-    ownerUser = await userModel.findOne({ name: owner.name });
+    ownerUser = await userModel.findOne({ name: owner.user.name });
   } catch (error) {
     return res
       .status(INTERNAL_SERVER_STATUS_CODE)
@@ -103,7 +103,7 @@ export const createInviteLink = async (req, res) => {
   let ownerUser;
 
   try {
-    ownerUser = await userModel.findOne({ name: owner.name });
+    ownerUser = await userModel.findOne({ name: owner.user.name });
   } catch (error) {
     return res
       .status(INTERNAL_SERVER_STATUS_CODE)
@@ -211,7 +211,7 @@ export const upgradeRole = async (req, res) => {
   let ownerUser;
 
   try {
-    ownerUser = await userModel.findOne({ name: owner.name });
+    ownerUser = await userModel.findOne({ name: owner.user.name });
   } catch (error) {
     return res
       .status(INTERNAL_SERVER_STATUS_CODE)
@@ -345,7 +345,7 @@ export const removeMember = async (req, res) => {
   let ownerUser;
 
   try {
-    ownerUser = await userModel.findOne({ name: owner.name });
+    ownerUser = await userModel.findOne({ name: owner.user.name });
   } catch (error) {
     return res
       .status(INTERNAL_SERVER_STATUS_CODE)
@@ -422,7 +422,7 @@ export const getGroupDetail = async (req, res) => {
   let memberUser;
 
   try {
-    memberUser = await userModel.findOne({ name: member.name });
+    memberUser = await userModel.findOne({ name: member.user.name });
   } catch (error) {
     return res
       .status(INTERNAL_SERVER_STATUS_CODE)

@@ -13,12 +13,12 @@ router.post(AUTH_ROUTE.GITHUB_LOGIN, loginWithGoogle);
 
 router.post(AUTH_ROUTE.GOOGLE_LOGIN, loginWithGoogle);
 
-router.get("/test", authenticationMiddleware, (req, res) => {
-  res.json({ name: "thoi" });
-});
+// router.get("/test", authenticationMiddleware, (req, res) => {
+//   res.json({ name: "thoi" });
+// });
 
 router.get("/test", (req, res) => {
-  sendEmail("boombeachbill@gmail.com", "xasivo3854@klblogs.com", "OK", "Yes sir");
+  sendEmail("boombeachbill@gmail.com", "covala1207@nubotel.com", "OK", "Yes sir");
   res.send({ status: "Success" });
 });
 
