@@ -10,6 +10,7 @@ const User = new mongoose.Schema({
   myGroupIds: [{ type: mongoose.Types.ObjectId, required: true, ref: "Group" }],
   joinedGroupIds: [{ type: mongoose.Types.ObjectId, required: true, ref: "Group" }],
   isActive: { type: Boolean, required: true },
+  activeCode: {type: String}
 });
 
 export default mongoose.model("User", User);
