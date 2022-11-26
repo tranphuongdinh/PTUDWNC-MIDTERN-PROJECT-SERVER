@@ -14,7 +14,7 @@ const authenticationMiddleware = (req, res, next) => {
   try {
     jwt.verify(token, SECRET_TOKEN, (err, decodedToken) => {
       if (err) {
-        return res.status(FORBIDDEN_STATUS_CODE).json({ message: err.message, data: [], code: STATUS.ERROR });
+        return res.status(FORBIDDEN_STATUS_CODE).json({ message: err.message, data: [], status: STATUS.ERROR });
       } else {
         req.body.token = token;
         req.user = { ...decodedToken.user, access_token: token } || null;
@@ -22,7 +22,7 @@ const authenticationMiddleware = (req, res, next) => {
       }
     });
   } catch (err) {
-    return res.status(BAD_REQUEST_STATUS_CODE).json({ message: err.message, data: [], code: STATUS.ERROR });
+    return res.status(BAD_REQUEST_STATUS_CODE).json({ message: err.message, data: [], status: STATUS.ERROR });
   }
 };
 

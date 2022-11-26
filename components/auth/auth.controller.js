@@ -30,7 +30,7 @@ export const register = async (req, res) => {
       email,
     });
 
-    if (user) return res.status(BAD_REQUEST_STATUS_CODE).json({ code: STATUS.ERROR, message: "Email is used!", data: [] });
+    if (user) return res.status(BAD_REQUEST_STATUS_CODE).json({ status: STATUS.ERROR, message: "Email is used!", data: [] });
 
     const newPassword = await bcrypt.hash(password, 10);
 
@@ -49,10 +49,10 @@ export const register = async (req, res) => {
 
     const access_token = jwt.sign(newUser, SECRET_TOKEN);
 
-    return res.status(SUCCESS_STATUS_CODE).json({ code: STATUS.OK, message: SUCCESS_STATUS_MESSAGE, data: [{ ...newUser, access_token }] });
+    return res.status(SUCCESS_STATUS_CODE).json({ status: STATUS.OK, message: SUCCESS_STATUS_MESSAGE, data: [{ ...newUser, access_token }] });
   } catch (err) {
     return res.status(NOTFOUND_STATUS_CODE).json({
-      code: STATUS.ERROR,
+      status: STATUS.ERROR,
       message: `Register failed: ${err}`,
       data: [],
     });
@@ -69,7 +69,7 @@ export const login = async (req, res) => {
 
     if (!user) {
       return res.status(UNAUTHENTICATED_STATUS_CODE).json({
-        code: STATUS.ERROR,
+        status: STATUS.ERROR,
         data: [],
         message: "Unauthorized",
       });
@@ -81,7 +81,7 @@ export const login = async (req, res) => {
       const access_token = jwt.sign({ user: user._doc }, SECRET_TOKEN);
 
       return res.status(SUCCESS_STATUS_CODE).json({
-        code: STATUS.OK,
+        status: STATUS.OK,
         message: SUCCESS_STATUS_MESSAGE,
         data: [
           {
@@ -92,13 +92,13 @@ export const login = async (req, res) => {
       });
     } else {
       return res.status(BAD_REQUEST_STATUS_CODE).json({
-        code: STATUS.ERROR,
+        status: STATUS.ERROR,
         data: [],
         message: "Invalid email or password",
       });
     }
   } catch (error) {
-    res.status(INTERNAL_SERVER_STATUS_CODE).json({ code: STATUS.ERROR, data: [], message: error.message });
+    res.status(INTERNAL_SERVER_STATUS_CODE).json({ status: STATUS.ERROR, data: [], message: error.message });
   }
 };
 
@@ -129,11 +129,11 @@ export const loginWithGoogle = async (req, res) => {
       });
 
       const access_token = jwt.sign(newUser, SECRET_TOKEN);
-      return res.status(SUCCESS_STATUS_CODE).json({ code: STATUS.OK, message: SUCCESS_STATUS_MESSAGE, data: [{ ...newUser, access_token }] });
+      return res.status(SUCCESS_STATUS_CODE).json({ status: STATUS.OK, message: SUCCESS_STATUS_MESSAGE, data: [{ ...newUser, access_token }] });
     } else {
       const access_token = jwt.sign({ user: user._doc }, SECRET_TOKEN);
       return res.status(SUCCESS_STATUS_CODE).json({
-        code: STATUS.OK,
+        status: STATUS.OK,
         message: SUCCESS_STATUS_MESSAGE,
         data: [
           {
@@ -144,6 +144,6 @@ export const loginWithGoogle = async (req, res) => {
       });
     }
   } catch (err) {
-    return res.status(BAD_REQUEST_STATUS_CODE).json({ message: err.message, data: [], code: STATUS.ERROR });
+    return res.status(BAD_REQUEST_STATUS_CODE).json({ message: err.message, data: [], status: STATUS.ERROR });
   }
 };
