@@ -298,7 +298,7 @@ export const getGroupDetail = async (req, res) => {
   let memberUser;
 
   try {
-    memberUser = await userModel.findOne({ name: member.user.name });
+    memberUser = await userModel.findOne({ email: member.user.email });
   } catch (error) {
     return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
   }
@@ -307,5 +307,37 @@ export const getGroupDetail = async (req, res) => {
     return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, SUCCESS_STATUS_MESSAGE, groupInstance));
   } else {
     return res.status(FORBIDDEN_STATUS_CODE).json(APIResponse(STATUS.ERROR, FORBIDDEN_STATUS_MESSAGE, "You are not allowed to do this"));
+  }
+};
+
+export const getGroupByIds = async (req, res) => {
+  try {
+    if (req.user) {
+      const { ids = [] } = req.body;
+
+      const groupList = await groupModel.find({
+        _id: {
+          $in: ids,
+        },
+      });
+
+      return res.status(SUCCESS_STATUS_CODE).json({
+        status: STATUS.OK,
+        data: groupList,
+        message: "Get group list successfully",
+      });
+    } else {
+      return res.status(NOTFOUND_STATUS_CODE).json({
+        status: STATUS.ERROR,
+        data: [],
+        message: "Not found",
+      });
+    }
+  } catch (e) {
+    return res.status(NOTFOUND_STATUS_CODE).json({
+      status: STATUS.ERROR,
+      data: [],
+      message: e.message,
+    });
   }
 };

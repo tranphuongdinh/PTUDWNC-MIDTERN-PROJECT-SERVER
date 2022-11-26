@@ -51,7 +51,38 @@ export const updateUser = async (req, res) => {
       });
     }
   } catch (e) {
-    console.log(e);
+    return res.status(NOTFOUND_STATUS_CODE).json({
+      status: STATUS.ERROR,
+      data: [],
+      message: e.message,
+    });
+  }
+};
+
+export const getUserByIds = async (req, res) => {
+  try {
+    if (req.user) {
+      const { ids = [] } = req.body;
+
+      const userList = await userModel.find({
+        _id: {
+          $in: ids,
+        },
+      });
+
+      return res.status(SUCCESS_STATUS_CODE).json({
+        status: STATUS.OK,
+        data: userList.map(({ _id, name, email }) => ({ _id, name, email })),
+        message: "Get user list successfully",
+      });
+    } else {
+      return res.status(NOTFOUND_STATUS_CODE).json({
+        status: STATUS.ERROR,
+        data: [],
+        message: "User not found",
+      });
+    }
+  } catch (e) {
     return res.status(NOTFOUND_STATUS_CODE).json({
       status: STATUS.ERROR,
       data: [],
