@@ -1,5 +1,6 @@
+import bcrypt from "bcryptjs";
 import { STATUS } from "../../constants/common.js";
-import { NOTFOUND_STATUS_CODE, SUCCESS_STATUS_CODE } from "../../constants/http-response.js";
+import { BAD_REQUEST_STATUS_CODE, NOTFOUND_STATUS_CODE, SUCCESS_STATUS_CODE } from "../../constants/http-response.js";
 import userModel from "../../models/user.model.js";
 
 export const getCurrentUser = async (req, res) => {
@@ -21,13 +22,27 @@ export const getCurrentUser = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     if (req.user) {
-      await userModel.findOneAndUpdate({ email: req.user.email }, { ...req.user, ...req.body });
-      const updatedUser = await userModel.findOne({ email: req.user.email });
-      return res.status(SUCCESS_STATUS_CODE).json({
-        status: STATUS.OK,
-        data: [updatedUser],
-        message: "Update user successfully",
-      });
+      const { name, password, newPassword } = req.body;
+
+      const isPasswordValid = await bcrypt.compare(password, req.user.password);
+
+      if (isPasswordValid) {
+        const newPasswordHashed = await bcrypt.hash(newPassword, 10);
+        await userModel.findOneAndUpdate({ email: req.user.email }, { ...req.user, name, password: newPasswordHashed });
+        const updatedUser = await userModel.findOne({ email: req.user.email });
+
+        return res.status(SUCCESS_STATUS_CODE).json({
+          status: STATUS.OK,
+          data: [updatedUser],
+          message: "Update user successfully",
+        });
+      } else {
+        return res.status(BAD_REQUEST_STATUS_CODE).json({
+          status: STATUS.ERROR,
+          data: [],
+          message: "Invalid password",
+        });
+      }
     } else {
       return res.status(NOTFOUND_STATUS_CODE).json({
         status: STATUS.ERROR,
@@ -36,10 +51,11 @@ export const updateUser = async (req, res) => {
       });
     }
   } catch (e) {
+    console.log(e);
     return res.status(NOTFOUND_STATUS_CODE).json({
       status: STATUS.ERROR,
       data: [],
-      message: e,
+      message: e.message,
     });
   }
 };
