@@ -6,16 +6,7 @@ import { APIResponse } from "../../models/APIResponse.js";
 import User from "../../models/user.model.js";
 
 import { DEFAULT_PASSWORD, SECRET_TOKEN, STATUS } from "../../constants/common.js";
-import {
-  BAD_REQUEST_STATUS_CODE,
-  BAD_REQUEST_STATUS_MESSAGE,
-  INTERNAL_SERVER_STATUS_CODE,
-  NOTFOUND_STATUS_CODE,
-  NOTFOUND_STATUS_MESSAGE,
-  SUCCESS_STATUS_CODE,
-  SUCCESS_STATUS_MESSAGE,
-  UNAUTHENTICATED_STATUS_CODE,
-} from "../../constants/http-response.js";
+import { BAD_REQUEST_STATUS_CODE, INTERNAL_SERVER_STATUS_CODE, NOTFOUND_STATUS_CODE, SUCCESS_STATUS_CODE, SUCCESS_STATUS_MESSAGE, UNAUTHENTICATED_STATUS_CODE } from "../../constants/http-response.js";
 
 import { sendEmail } from "../../config/email/emailService.js";
 import { GOOGLE_CLIENT_ID } from "../../constants/secret.js";
@@ -171,23 +162,23 @@ export const verifyAccount = async (req, res) => {
   try {
     user = await User.findById(userId);
   } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
   if (!user) {
-    return res.status(NOTFOUND_STATUS_CODE).json(APIResponse(STATUS.ERROR, NOTFOUND_STATUS_MESSAGE, "User not found"));
+    return res.status(NOTFOUND_STATUS_CODE).json(APIResponse(STATUS.ERROR, "User not found"));
   }
 
   if (activeCode !== user.activeCode) {
-    return res.status(BAD_REQUEST_STATUS_CODE).json(APIResponse(STATUS.ERROR, BAD_REQUEST_STATUS_MESSAGE, "Active code is not correct, plz try again"));
+    return res.status(BAD_REQUEST_STATUS_CODE).json(APIResponse(STATUS.ERROR, "Active code is not correct, please try again"));
   }
 
   try {
     user.isActive = true;
     await user.save();
   } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
-  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, SUCCESS_STATUS_MESSAGE, "Verify successfully !!!"));
+  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Verify successfully"));
 };

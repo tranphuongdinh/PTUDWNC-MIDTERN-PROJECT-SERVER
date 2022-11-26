@@ -1,17 +1,7 @@
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import { STATUS } from "../../constants/common.js";
-import {
-  BAD_REQUEST_STATUS_CODE,
-  BAD_REQUEST_STATUS_MESSAGE,
-  FORBIDDEN_STATUS_CODE,
-  FORBIDDEN_STATUS_MESSAGE,
-  INTERNAL_SERVER_STATUS_CODE,
-  INTERNAL_SERVER_STATUS_MESSAGE,
-  NOTFOUND_STATUS_CODE,
-  SUCCESS_STATUS_CODE,
-  SUCCESS_STATUS_MESSAGE,
-} from "../../constants/http-response.js";
+import { BAD_REQUEST_STATUS_CODE, FORBIDDEN_STATUS_CODE, INTERNAL_SERVER_STATUS_CODE, NOTFOUND_STATUS_CODE, SUCCESS_STATUS_CODE, SUCCESS_STATUS_MESSAGE } from "../../constants/http-response.js";
 import { APIResponse } from "../../models/APIResponse.js";
 import groupModel from "../../models/group.model.js";
 import userModel from "../../models/user.model.js";
@@ -25,10 +15,10 @@ export const createGroup = async (req, res) => {
   try {
     const existGroup = await groupModel.findOne({ name });
     if (existGroup) {
-      return res.status(BAD_REQUEST_STATUS_CODE).json(APIResponse(STATUS.ERROR, BAD_REQUEST_STATUS_MESSAGE, "Your group name is already existed"));
+      return res.status(BAD_REQUEST_STATUS_CODE).json(APIResponse(STATUS.ERROR, "Your group name is already existed"));
     }
   } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
   //Get Owner
@@ -38,7 +28,7 @@ export const createGroup = async (req, res) => {
   try {
     ownerUser = await userModel.findOne({ email: owner.user.email });
   } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
   const newGroup = new groupModel({
@@ -55,11 +45,11 @@ export const createGroup = async (req, res) => {
     await ownerUser.save();
     await newGroup.save();
   } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
   //ALl SUCCESS
-  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, SUCCESS_STATUS_MESSAGE, newGroup));
+  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, newGroup));
 };
 
 export const createInviteLink = async (req, res) => {
@@ -70,7 +60,7 @@ export const createInviteLink = async (req, res) => {
   try {
     groupInstance = await groupModel.findById(groupId);
   } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
   // Get owner information
@@ -80,7 +70,7 @@ export const createInviteLink = async (req, res) => {
   try {
     ownerUser = await userModel.findOne({ email: owner.user.email });
   } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
   // Check if requester is group's owner
@@ -94,7 +84,7 @@ export const createInviteLink = async (req, res) => {
   try {
     await groupInstance.save();
   } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
   //ALl SUCCESS
@@ -110,7 +100,7 @@ export const inviteByLink = async (req, res) => {
   try {
     memberUser = await userModel.findById(userId);
   } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
   //Get GroupInstance
@@ -119,7 +109,7 @@ export const inviteByLink = async (req, res) => {
   try {
     groupInstance = await groupModel.findById(groupId);
   } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
   //Check code
@@ -140,10 +130,10 @@ export const inviteByLink = async (req, res) => {
     await groupInstance.save();
     await memberUser.save();
   } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
-  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, SUCCESS_STATUS_MESSAGE, "Add successfully"));
+  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Add successfully"));
 };
 
 export const upgradeRole = async (req, res) => {
@@ -156,7 +146,7 @@ export const upgradeRole = async (req, res) => {
   try {
     ownerUser = await userModel.findOne({ email: owner.user.email });
   } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
   // Get member information
@@ -165,7 +155,7 @@ export const upgradeRole = async (req, res) => {
   try {
     memberUser = await userModel.findById(memberId);
   } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
   //Get GroupInstance
@@ -174,12 +164,12 @@ export const upgradeRole = async (req, res) => {
   try {
     groupInstance = await groupModel.findById(groupId);
   } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
   //Check if requester is group's owner
   if (!groupInstance.ownerId.equals(ownerUser._id)) {
-    return res.status(FORBIDDEN_STATUS_CODE).json(APIResponse(STATUS.ERROR, "You are not allowed to do this", []));
+    return res.status(FORBIDDEN_STATUS_CODE).json(APIResponse(STATUS.ERROR, "You are not allowed to do this"));
   }
 
   if (isUpgrade) {
@@ -194,7 +184,7 @@ export const upgradeRole = async (req, res) => {
     try {
       await groupInstance.save();
     } catch (error) {
-      return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+      return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
     }
 
     return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, SUCCESS_STATUS_MESSAGE, "Upgrade role successfully"));
@@ -210,7 +200,7 @@ export const upgradeRole = async (req, res) => {
     try {
       await groupInstance.save();
     } catch (error) {
-      return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+      return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
     }
 
     return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, SUCCESS_STATUS_MESSAGE, "Downgrade role successfully"));
@@ -218,7 +208,7 @@ export const upgradeRole = async (req, res) => {
 };
 
 export const removeMember = async (req, res) => {
-  const { groupId, userId, token } = req.body;
+  const { groupId, userId } = req.body;
 
   // //Get Member
   let memberUser;
@@ -226,7 +216,7 @@ export const removeMember = async (req, res) => {
   try {
     memberUser = await userModel.findById(userId);
   } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
   //Get GroupInstance
@@ -235,22 +225,22 @@ export const removeMember = async (req, res) => {
   try {
     groupInstance = await groupModel.findById(groupId);
   } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
   //Get Owner
-  const owner = jwt.decode(token);
+  const owner = { user: req.user };
   let ownerUser;
 
   try {
     ownerUser = await userModel.findOne({ email: owner.user.email });
   } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
   // Check if requester is group's owner
   if (!groupInstance.ownerId.equals(ownerUser._id)) {
-    return res.status(FORBIDDEN_STATUS_CODE).json(APIResponse(STATUS.ERROR, FORBIDDEN_STATUS_MESSAGE, "You are not allowed to do this"));
+    return res.status(FORBIDDEN_STATUS_CODE).json(APIResponse(STATUS.ERROR, "You are not allowed to do this"));
   }
 
   try {
@@ -274,10 +264,10 @@ export const removeMember = async (req, res) => {
     await memberUser.save();
     await groupInstance.save();
   } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
-  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, SUCCESS_STATUS_MESSAGE, "Remove member successfully"));
+  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Remove member successfully"));
 };
 
 // Get Data
@@ -291,7 +281,7 @@ export const getGroupDetail = async (req, res) => {
   try {
     groupInstance = await groupModel.findById(groupId);
   } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
   //Get member
@@ -301,13 +291,13 @@ export const getGroupDetail = async (req, res) => {
   try {
     memberUser = await userModel.findOne({ email: member.user.email });
   } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
   if (groupInstance.ownerId.equals(memberUser._id) || groupInstance.memberIds.includes(memberUser._id) || groupInstance.coOwnerIds.includes(memberUser._id)) {
     return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, SUCCESS_STATUS_MESSAGE, groupInstance));
   } else {
-    return res.status(FORBIDDEN_STATUS_CODE).json(APIResponse(STATUS.ERROR, "You are not allowed to do this", []));
+    return res.status(FORBIDDEN_STATUS_CODE).json(APIResponse(STATUS.ERROR, "You are not allowed to do this"));
   }
 };
 

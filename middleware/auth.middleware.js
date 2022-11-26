@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { SECRET_TOKEN, STATUS } from "../constants/common.js";
-import { BAD_REQUEST_STATUS_CODE, FORBIDDEN_STATUS_CODE, FORBIDDEN_STATUS_MESSAGE, UNAUTHENTICATED_STATUS_CODE, UNAUTHENTICATED_STATUS_MESSAGE } from "../constants/http-response.js";
+import { BAD_REQUEST_STATUS_CODE, FORBIDDEN_STATUS_CODE, UNAUTHENTICATED_STATUS_CODE, UNAUTHENTICATED_STATUS_MESSAGE } from "../constants/http-response.js";
 import { APIResponse } from "../models/APIResponse.js";
 import User from "../models/user.model.js";
 
@@ -25,7 +25,7 @@ const authenticationMiddleware = async (req, res, next) => {
           req.user = { ...ownerUser._doc, access_token: token } || null;
           next();
         } else {
-          return res.status(FORBIDDEN_STATUS_CODE).json(APIResponse(STATUS.ERROR, FORBIDDEN_STATUS_MESSAGE, "Your account is not verified"));
+          return res.status(FORBIDDEN_STATUS_CODE).json(APIResponse(STATUS.ERROR, "Your account is not verified"));
         }
       }
     });
