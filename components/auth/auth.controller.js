@@ -1,11 +1,23 @@
 import bcrypt from "bcryptjs";
 import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
+import { v4 as uuidv4 } from "uuid";
+import { APIResponse } from "../../models/APIResponse.js";
 import User from "../../models/user.model.js";
 
 import { DEFAULT_PASSWORD, SECRET_TOKEN, STATUS } from "../../constants/common.js";
-import { BAD_REQUEST_STATUS_CODE, INTERNAL_SERVER_STATUS_CODE, NOTFOUND_STATUS_CODE, SUCCESS_STATUS_CODE, SUCCESS_STATUS_MESSAGE, UNAUTHENTICATED_STATUS_CODE } from "../../constants/http-response.js";
+import {
+  BAD_REQUEST_STATUS_CODE,
+  BAD_REQUEST_STATUS_MESSAGE,
+  INTERNAL_SERVER_STATUS_CODE,
+  NOTFOUND_STATUS_CODE,
+  NOTFOUND_STATUS_MESSAGE,
+  SUCCESS_STATUS_CODE,
+  SUCCESS_STATUS_MESSAGE,
+  UNAUTHENTICATED_STATUS_CODE,
+} from "../../constants/http-response.js";
 
+import { sendEmail } from "../../config/email/emailService.js";
 import { GOOGLE_CLIENT_ID } from "../../constants/secret.js";
 
 const getDecodedOAuthJwtGoogle = async (token) => {
@@ -40,6 +52,7 @@ export const register = async (req, res) => {
       myGroupIds: [],
       joinedGroupIds: [],
       isActive: false,
+      activeCode: uuidv4(),
     };
 
     await User.create({
@@ -48,8 +61,8 @@ export const register = async (req, res) => {
     });
 
     const access_token = jwt.sign(newUser, SECRET_TOKEN);
-
-    return res.status(SUCCESS_STATUS_CODE).json({ status: STATUS.OK, message: SUCCESS_STATUS_MESSAGE, data: [{ ...newUser, access_token }] });
+    sendEmail("boombeachbill@gmail.com", "covala1207@nubotel.com", "Verified your account", "<h1> Please click to this link to verify your account!! </h1>");
+    return res.status(SUCCESS_STATUS_CODE).json({ code: STATUS.OK, message: SUCCESS_STATUS_MESSAGE, data: [{ ...newUser, access_token }] });
   } catch (err) {
     return res.status(NOTFOUND_STATUS_CODE).json({
       status: STATUS.ERROR,
@@ -121,12 +134,15 @@ export const loginWithGoogle = async (req, res) => {
         myGroupIds: [],
         joinedGroupIds: [],
         isActive: false,
+        activeCode: uuidv4(),
       };
 
       await User.create({
         ...newUser,
         password: newPassword,
       });
+
+      sendEmail("boombeachbill@gmail.com", "covala1207@nubotel.com", "Verified your account", "<h1> Please click to this link to verify your account!! </h1>");
 
       const access_token = jwt.sign(newUser, SECRET_TOKEN);
       return res.status(SUCCESS_STATUS_CODE).json({ status: STATUS.OK, message: SUCCESS_STATUS_MESSAGE, data: [{ ...newUser, access_token }] });
@@ -146,4 +162,32 @@ export const loginWithGoogle = async (req, res) => {
   } catch (err) {
     return res.status(BAD_REQUEST_STATUS_CODE).json({ message: err.message, data: [], status: STATUS.ERROR });
   }
+};
+
+export const verifyAccount = async (req, res) => {
+  const { userId, activeCode } = req.body;
+  let user;
+
+  try {
+    user = await User.findById(userId);
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+  }
+
+  if (!user) {
+    return res.status(NOTFOUND_STATUS_CODE).json(APIResponse(STATUS.ERROR, NOTFOUND_STATUS_MESSAGE, "User not found"));
+  }
+
+  if (activeCode !== user.activeCode) {
+    return res.status(BAD_REQUEST_STATUS_CODE).json(APIResponse(STATUS.ERROR, BAD_REQUEST_STATUS_MESSAGE, "Active code is not correct, plz try again"));
+  }
+
+  try {
+    user.isActive = true;
+    await user.save();
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+  }
+
+  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, SUCCESS_STATUS_MESSAGE, "Verify successfully !!!"));
 };

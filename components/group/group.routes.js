@@ -4,7 +4,7 @@ import {
   createGroup,
   createInviteLink,
   inviteByLink,
-  upgradeRole, 
+  upgradeRole,
   removeMember,
   getGroupDetail,
 } from './group.controller.js';
