@@ -128,12 +128,17 @@ export const loginWithGoogle = async (req, res) => {
         activeCode: uuidv4(),
       };
 
-      await User.create({
+      const registerUser = await User.create({
         ...newUser,
         password: newPassword,
       });
 
-      sendEmail("boombeachbill@gmail.com", "covala1207@nubotel.com", "Verified your account", "<h1> Please click to this link to verify your account!! </h1>");
+      sendEmail(
+        "boombeachbill@gmail.com",
+        registerUser._doc.email,
+        "Verified your account",
+        `<p> Please click to this link to verify your account: <a href="https://ptudwnc-midtern-project-client.vercel.app/active?userId=${registerUser._doc._id}&activeCode=${registerUser._doc.activeCode}">https://ptudwnc-midtern-project-client.vercel.app/active?userId=${registerUser._doc._id}&activeCode=${registerUser._doc.activeCode}</a> </p>`
+      );
 
       const access_token = jwt.sign(newUser, SECRET_TOKEN);
       return res.status(SUCCESS_STATUS_CODE).json({ status: STATUS.OK, message: SUCCESS_STATUS_MESSAGE, data: [{ ...newUser, access_token }] });
@@ -180,5 +185,5 @@ export const verifyAccount = async (req, res) => {
     return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
-  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Verify successfully"));
+  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Account has been activated!", [user]));
 };
