@@ -112,6 +112,15 @@ export const inviteByLink = async (req, res) => {
     return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
+  //Check user already in group
+  if (groupInstance.ownerId.equals(userId) || groupInstance.coOwnerIds.includes(userId) || groupInstance.memberIds.includes(userId)) {
+    return res
+      .status(BAD_REQUEST_STATUS_CODE)
+      .json(
+        APIResponse(STATUS.ERROR, BAD_REQUEST_STATUS_MESSAGE, 'You are already in this group !!!')
+      );
+  }
+
   //Check code
   if (!groupInstance.inviteCode.includes(code)) {
     return res.status(FORBIDDEN_STATUS_CODE).json(APIResponse(STATUS.ERROR, "You are not invited", []));
