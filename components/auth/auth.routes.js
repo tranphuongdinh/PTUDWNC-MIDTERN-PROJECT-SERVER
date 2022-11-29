@@ -8,10 +8,8 @@ const router = express.Router();
 router.post(AUTH_ROUTE.LOGIN, login);
 router.post(AUTH_ROUTE.REGISTER, register);
 
-router.post(AUTH_ROUTE.GITHUB_LOGIN, loginWithGoogle);
-
 router.post(AUTH_ROUTE.GOOGLE_LOGIN, loginWithGoogle);
 
-router.post('/verify', verifyAccount)
+router.post("/verify", verifyAccount);
 
 export default router;

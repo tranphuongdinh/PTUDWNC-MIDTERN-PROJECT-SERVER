@@ -1,7 +1,15 @@
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import { STATUS } from "../../constants/common.js";
-import { BAD_REQUEST_STATUS_CODE, FORBIDDEN_STATUS_CODE, INTERNAL_SERVER_STATUS_CODE, NOTFOUND_STATUS_CODE, SUCCESS_STATUS_CODE, SUCCESS_STATUS_MESSAGE } from "../../constants/http-response.js";
+import {
+  BAD_REQUEST_STATUS_CODE,
+  BAD_REQUEST_STATUS_MESSAGE,
+  FORBIDDEN_STATUS_CODE,
+  INTERNAL_SERVER_STATUS_CODE,
+  NOTFOUND_STATUS_CODE,
+  SUCCESS_STATUS_CODE,
+  SUCCESS_STATUS_MESSAGE,
+} from "../../constants/http-response.js";
 import { APIResponse } from "../../models/APIResponse.js";
 import groupModel from "../../models/group.model.js";
 import userModel from "../../models/user.model.js";
@@ -114,11 +122,7 @@ export const inviteByLink = async (req, res) => {
 
   //Check user already in group
   if (groupInstance.ownerId.equals(userId) || groupInstance.coOwnerIds.includes(userId) || groupInstance.memberIds.includes(userId)) {
-    return res
-      .status(BAD_REQUEST_STATUS_CODE)
-      .json(
-        APIResponse(STATUS.ERROR, BAD_REQUEST_STATUS_MESSAGE, 'You are already in this group !!!')
-      );
+    return res.status(BAD_REQUEST_STATUS_CODE).json(APIResponse(STATUS.ERROR, BAD_REQUEST_STATUS_MESSAGE, "You are already in this group !!!"));
   }
 
   //Check code

@@ -21,17 +21,18 @@ const authenticationMiddleware = async (req, res, next) => {
         return res.status(FORBIDDEN_STATUS_CODE).json({ message: err.message, data: [], status: STATUS.ERROR });
       } else {
         const owner = jwt.decode(token);
-        let ownerUser = await User.findOne({ email: owner.user.email });
-        if (ownerUser?._doc?.isActive) {
+        let ownerUser = await User.findOne({ email: owner.email });
+
+        if (req.body?.isSendVerificationEmail) {
+          const { _id = "", activeCode = "", isActive = false, email = "" } = ownerUser?._doc;
+          req.user = { _id: _id?.toString(), activeCode, isActive, email } || null;
+          next();
+        } else if (ownerUser?._doc?.isActive) {
           req.body.token = token;
           req.user = { ...ownerUser._doc, access_token: token } || null;
           next();
         } else {
-          if (req.body?.isSendVerificationEmail) {
-            const { _id = "", activeCode = "", isActive = false, email = "" } = ownerUser?._doc;
-            req.user = { _id: _id?.toString(), activeCode, isActive, email } || null;
-            next();
-          } else return res.status(FORBIDDEN_STATUS_CODE).json(APIResponse(STATUS.ERROR, "Your account is not verified"));
+          return res.status(FORBIDDEN_STATUS_CODE).json(APIResponse(STATUS.ERROR, "Your account is not verified"));
         }
       }
     });

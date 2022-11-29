@@ -13,8 +13,9 @@ export const sendVerificationEmail = async (req, res) => {
         process.env.EMAIL_HOST,
         user.email,
         "Verified your account",
-        `<p> Please click to this link to verify your account: <a href="https://ptudwnc-midtern-project-client.vercel.app/active?userId=${user._id}&activeCode=${user.activeCode}">https://ptudwnc-midtern-project-client.vercel.app/active?userId=${user._id}&activeCode=${user.activeCode}</a> </p>`
+        `<p> Please click to this link to verify your account: <a href="${process.env.CLIENT_DOMAIN}/active?userId=${user._id}&activeCode=${user.activeCode}">${process.env.CLIENT_DOMAIN}/active?userId=${user._id}&activeCode=${user.activeCode}</a> </p>`
       );
+
       return res.status(SUCCESS_STATUS_CODE).json({
         status: STATUS.OK,
         data: [],

@@ -57,7 +57,7 @@ export const register = async (req, res) => {
       process.env.EMAIL_HOST,
       registerUser._doc.email,
       "Verified your account",
-      `<p> Please click to this link to verify your account: <a href="https://ptudwnc-midtern-project-client.vercel.app/active?userId=${registerUser._doc._id}&activeCode=${registerUser._doc.activeCode}">https://ptudwnc-midtern-project-client.vercel.app/active?userId=${registerUser._doc._id}&activeCode=${registerUser._doc.activeCode}</a> </p>`
+      `<p> Please click to this link to verify your account: <a href="${process.env.CLIENT_DOMAIN}/active?userId=${registerUser._doc._id}&activeCode=${registerUser._doc.activeCode}">${process.env.CLIENT_DOMAIN}/active?userId=${registerUser._doc._id}&activeCode=${registerUser._doc.activeCode}</a> </p>`
     );
 
     const access_token = jwt.sign(newUser, process.env.SECRET_TOKEN);
