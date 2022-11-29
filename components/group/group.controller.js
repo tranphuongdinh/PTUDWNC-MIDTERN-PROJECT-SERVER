@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
+import { sendEmail } from "../../config/email/emailService.js";
 import { STATUS } from "../../constants/common.js";
 import {
   BAD_REQUEST_STATUS_CODE,
@@ -13,7 +14,8 @@ import {
 import { APIResponse } from "../../models/APIResponse.js";
 import groupModel from "../../models/group.model.js";
 import userModel from "../../models/user.model.js";
-
+import dotenv from "dotenv";
+dotenv.config();
 // Interact Data
 
 export const createGroup = async (req, res) => {
@@ -148,6 +150,21 @@ export const inviteByLink = async (req, res) => {
 
   return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Add successfully"));
 };
+
+export const sendEmailInvite = async (req, res) => {
+  const { link, email, ownerName } = req.body;
+
+  console.log(link)
+  try {
+    sendEmail(process.env.EMAIL_HOST, email,
+      "Invited to a group",
+      `<p> ${ownerName ? ownerName : 'Someone'} has invited you to a group, click to join: <a href="${link}"> ${link} </a></p>`)
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  }
+
+  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, SUCCESS_STATUS_MESSAGE, 'Send invited link successully !!!'))
+}
 
 export const upgradeRole = async (req, res) => {
   const { memberId, roleCode, groupId, token, isUpgrade } = req.body;

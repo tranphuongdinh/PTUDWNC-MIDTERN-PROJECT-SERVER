@@ -1,6 +1,6 @@
 import express from "express";
 import authenticationMiddleware from "../../middleware/auth.middleware.js";
-import { createGroup, createInviteLink, getGroupByIds, getGroupDetail, inviteByLink, removeMember, upgradeRole } from "./group.controller.js";
+import { createGroup, createInviteLink, getGroupByIds, getGroupDetail, inviteByLink, removeMember, upgradeRole, sendEmailInvite } from "./group.controller.js";
 
 const router = express.Router();
 
@@ -8,6 +8,7 @@ const router = express.Router();
 router.post("/create", authenticationMiddleware, createGroup);
 router.post("/link", authenticationMiddleware, createInviteLink);
 router.post("/invite", inviteByLink);
+router.post("/send-invite-email", sendEmailInvite)
 router.post("/role", authenticationMiddleware, upgradeRole);
 router.post("/remove", authenticationMiddleware, removeMember);
 

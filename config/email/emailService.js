@@ -16,8 +16,7 @@ export const sendEmail = (fromEmail, toEmail, subject, content) => {
   sgMail
     .send(msg)
     .then((response) => {
-      console.log(response[0].statusCode);
-      console.log(response[0].headers);
+      console.log('Send email success');
     })
     .catch((error) => {
       console.error({ error: error });
