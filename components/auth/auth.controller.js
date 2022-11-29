@@ -10,8 +10,8 @@ import { BAD_REQUEST_STATUS_CODE, INTERNAL_SERVER_STATUS_CODE, NOTFOUND_STATUS_C
 
 import { sendEmail } from "../../config/email/emailService.js";
 
-import dotenv from 'dotenv'
-dotenv.config()
+import dotenv from "dotenv";
+dotenv.config();
 
 const getDecodedOAuthJwtGoogle = async (token) => {
   try {
@@ -133,21 +133,9 @@ export const loginWithGoogle = async (req, res) => {
         email,
         myGroupIds: [],
         joinedGroupIds: [],
-        isActive: false,
+        isActive: true,
         activeCode: uuidv4(),
       };
-
-      const registerUser = await User.create({
-        ...newUser,
-        password: newPassword,
-      });
-
-      sendEmail(
-        process.env.EMAIL_HOST,
-        registerUser._doc.email,
-        "Verified your account",
-        `<p> Please click to this link to verify your account: <a href="https://ptudwnc-midtern-project-client.vercel.app/active?userId=${registerUser._doc._id}&activeCode=${registerUser._doc.activeCode}">https://ptudwnc-midtern-project-client.vercel.app/active?userId=${registerUser._doc._id}&activeCode=${registerUser._doc.activeCode}</a> </p>`
-      );
 
       const access_token = jwt.sign(newUser, process.env.SECRET_TOKEN);
       return res.status(SUCCESS_STATUS_CODE).json({ status: STATUS.OK, message: SUCCESS_STATUS_MESSAGE, data: [{ ...newUser, access_token }] });
