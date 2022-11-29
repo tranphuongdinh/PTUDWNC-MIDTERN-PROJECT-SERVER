@@ -1,10 +1,10 @@
+import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { STATUS } from "../constants/common.js";
 import { BAD_REQUEST_STATUS_CODE, FORBIDDEN_STATUS_CODE, UNAUTHENTICATED_STATUS_CODE, UNAUTHENTICATED_STATUS_MESSAGE } from "../constants/http-response.js";
 import { APIResponse } from "../models/APIResponse.js";
 import User from "../models/user.model.js";
-import dotenv from 'dotenv'
-dotenv.config()
+dotenv.config();
 
 const authenticationMiddleware = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -27,7 +27,11 @@ const authenticationMiddleware = async (req, res, next) => {
           req.user = { ...ownerUser._doc, access_token: token } || null;
           next();
         } else {
-          return res.status(FORBIDDEN_STATUS_CODE).json(APIResponse(STATUS.ERROR, "Your account is not verified"));
+          if (req.body?.isSendVerificationEmail) {
+            const { _id = "", activeCode = "", isActive = false, email = "" } = ownerUser?._doc;
+            req.user = { _id: _id?.toString(), activeCode, isActive, email } || null;
+            next();
+          } else return res.status(FORBIDDEN_STATUS_CODE).json(APIResponse(STATUS.ERROR, "Your account is not verified"));
         }
       }
     });

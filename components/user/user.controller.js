@@ -1,20 +1,61 @@
 import bcrypt from "bcryptjs";
+import { sendEmail } from "../../config/email/emailService.js";
 import { STATUS } from "../../constants/common.js";
 import { BAD_REQUEST_STATUS_CODE, NOTFOUND_STATUS_CODE, SUCCESS_STATUS_CODE } from "../../constants/http-response.js";
 import userModel from "../../models/user.model.js";
 
-export const getCurrentUser = async (req, res) => {
-  if (req.user) {
-    return res.status(SUCCESS_STATUS_CODE).json({
-      status: STATUS.OK,
-      data: [req.user],
-      message: "Get user successfully",
-    });
-  } else {
+export const sendVerificationEmail = async (req, res) => {
+  try {
+    if (req.user) {
+      const user = req.user;
+
+      sendEmail(
+        process.env.EMAIL_HOST,
+        user.email,
+        "Verified your account",
+        `<p> Please click to this link to verify your account: <a href="https://ptudwnc-midtern-project-client.vercel.app/active?userId=${user._id}&activeCode=${user.activeCode}">https://ptudwnc-midtern-project-client.vercel.app/active?userId=${user._id}&activeCode=${user.activeCode}</a> </p>`
+      );
+      return res.status(SUCCESS_STATUS_CODE).json({
+        status: STATUS.OK,
+        data: [],
+        message: "The verification email has been sent",
+      });
+    } else {
+      return res.status(NOTFOUND_STATUS_CODE).json({
+        status: STATUS.ERROR,
+        data: [],
+        message: "Can not send verification email",
+      });
+    }
+  } catch (e) {
     return res.status(NOTFOUND_STATUS_CODE).json({
       status: STATUS.ERROR,
       data: [],
-      message: "User not found",
+      message: e,
+    });
+  }
+};
+
+export const getCurrentUser = async (req, res) => {
+  try {
+    if (req.user) {
+      return res.status(SUCCESS_STATUS_CODE).json({
+        status: STATUS.OK,
+        data: [req.user],
+        message: "Get user successfully",
+      });
+    } else {
+      return res.status(NOTFOUND_STATUS_CODE).json({
+        status: STATUS.ERROR,
+        data: [],
+        message: "User not found",
+      });
+    }
+  } catch (e) {
+    return res.status(NOTFOUND_STATUS_CODE).json({
+      status: STATUS.ERROR,
+      data: [],
+      message: e,
     });
   }
 };
