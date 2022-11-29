@@ -154,7 +154,6 @@ export const inviteByLink = async (req, res) => {
 export const sendEmailInvite = async (req, res) => {
   const { link, email, ownerName } = req.body;
 
-  console.log(link)
   try {
     sendEmail(process.env.EMAIL_HOST, email,
       "Invited to a group",
