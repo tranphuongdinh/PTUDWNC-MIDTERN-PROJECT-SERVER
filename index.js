@@ -18,6 +18,6 @@ app.use(cors());
 
 route(app);
 
-app.listen(process.env.PORT, () => {
-  console.log("Server started on " + process.env.PORT);
+app.listen(process.env.PORT || 1400, () => {
+  console.log("Server started on " + process.env.PORT || 1400);
 });

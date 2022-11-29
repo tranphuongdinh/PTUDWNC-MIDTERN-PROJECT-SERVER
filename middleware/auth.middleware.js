@@ -21,7 +21,7 @@ const authenticationMiddleware = async (req, res, next) => {
         return res.status(FORBIDDEN_STATUS_CODE).json({ message: err.message, data: [], status: STATUS.ERROR });
       } else {
         const owner = jwt.decode(token);
-        let ownerUser = await User.findOne({ email: owner.email });
+        let ownerUser = await User.findOne({ email: owner?.email || owner?.user?.email });
 
         if (req.body?.isSendVerificationEmail) {
           const { _id = "", activeCode = "", isActive = false, email = "" } = ownerUser?._doc;
