@@ -3,7 +3,9 @@ import cors from "cors";
 import express from "express";
 import route from "./components/root/root.route.js";
 import DbConnect from "./config/db/index.js";
-import { PORT } from "./constants/common.js";
+import dotenv from 'dotenv'
+dotenv.config()
+
 const app = express();
 
 DbConnect();
@@ -15,6 +17,6 @@ app.use(cors());
 
 route(app);
 
-app.listen(PORT, () => {
-  console.log("Server started on " + PORT);
+app.listen(process.env.PORT, () => {
+  console.log("Server started on " + process.env.PORT);
 });

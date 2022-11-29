@@ -14,9 +14,4 @@ router.post(AUTH_ROUTE.GOOGLE_LOGIN, loginWithGoogle);
 
 router.post('/verify', verifyAccount)
 
-router.get("/test", (req, res) => {
-  sendEmail("boombeachbill@gmail.com", "covala1207@nubotel.com", "OK", "Yes sir");
-  res.send({ status: "Success" });
-});
-
 export default router;

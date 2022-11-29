@@ -5,19 +5,21 @@ import { v4 as uuidv4 } from "uuid";
 import { APIResponse } from "../../models/APIResponse.js";
 import User from "../../models/user.model.js";
 
-import { DEFAULT_PASSWORD, SECRET_TOKEN, STATUS } from "../../constants/common.js";
+import { DEFAULT_PASSWORD, STATUS } from "../../constants/common.js";
 import { BAD_REQUEST_STATUS_CODE, INTERNAL_SERVER_STATUS_CODE, NOTFOUND_STATUS_CODE, SUCCESS_STATUS_CODE, SUCCESS_STATUS_MESSAGE, UNAUTHENTICATED_STATUS_CODE } from "../../constants/http-response.js";
 
 import { sendEmail } from "../../config/email/emailService.js";
-import { GOOGLE_CLIENT_ID } from "../../constants/secret.js";
+
+import dotenv from 'dotenv'
+dotenv.config()
 
 const getDecodedOAuthJwtGoogle = async (token) => {
   try {
-    const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
     const ticket = await client.verifyIdToken({
       idToken: token,
-      audience: GOOGLE_CLIENT_ID,
+      audience: process.env.GOOGLE_CLIENT_ID,
     });
 
     return ticket?.payload || null;
@@ -52,13 +54,13 @@ export const register = async (req, res) => {
     });
 
     sendEmail(
-      "boombeachbill@gmail.com",
+      process.env.EMAIL_HOST,
       registerUser._doc.email,
       "Verified your account",
       `<p> Please click to this link to verify your account: <a href="https://ptudwnc-midtern-project-client.vercel.app/active?userId=${registerUser._doc._id}&activeCode=${registerUser._doc.activeCode}">https://ptudwnc-midtern-project-client.vercel.app/active?userId=${registerUser._doc._id}&activeCode=${registerUser._doc.activeCode}</a> </p>`
     );
 
-    const access_token = jwt.sign(newUser, SECRET_TOKEN);
+    const access_token = jwt.sign(newUser, process.env.SECRET_TOKEN);
 
     return res.status(SUCCESS_STATUS_CODE).json({ code: STATUS.OK, message: SUCCESS_STATUS_MESSAGE, data: [{ ...newUser, access_token }] });
   } catch (err) {
@@ -89,7 +91,7 @@ export const login = async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (isPasswordValid) {
-      const access_token = jwt.sign({ user: user._doc }, SECRET_TOKEN);
+      const access_token = jwt.sign({ user: user._doc }, process.env.SECRET_TOKEN);
 
       return res.status(SUCCESS_STATUS_CODE).json({
         status: STATUS.OK,
@@ -141,16 +143,16 @@ export const loginWithGoogle = async (req, res) => {
       });
 
       sendEmail(
-        "boombeachbill@gmail.com",
+        process.env.EMAIL_HOST,
         registerUser._doc.email,
         "Verified your account",
         `<p> Please click to this link to verify your account: <a href="https://ptudwnc-midtern-project-client.vercel.app/active?userId=${registerUser._doc._id}&activeCode=${registerUser._doc.activeCode}">https://ptudwnc-midtern-project-client.vercel.app/active?userId=${registerUser._doc._id}&activeCode=${registerUser._doc.activeCode}</a> </p>`
       );
 
-      const access_token = jwt.sign(newUser, SECRET_TOKEN);
+      const access_token = jwt.sign(newUser, process.env.SECRET_TOKEN);
       return res.status(SUCCESS_STATUS_CODE).json({ status: STATUS.OK, message: SUCCESS_STATUS_MESSAGE, data: [{ ...newUser, access_token }] });
     } else {
-      const access_token = jwt.sign({ user: user._doc }, SECRET_TOKEN);
+      const access_token = jwt.sign({ user: user._doc }, process.env.SECRET_TOKEN);
       return res.status(SUCCESS_STATUS_CODE).json({
         status: STATUS.OK,
         message: SUCCESS_STATUS_MESSAGE,

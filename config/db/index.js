@@ -1,10 +1,11 @@
 import mongoose from "mongoose"
-import { MDB_CONNECTION_STRING } from "../../constants/common.js";
+import dotenv from 'dotenv'
+dotenv.config()
 
 async function DbConnect() {
   try {
-    console.log('Connect: ' + MDB_CONNECTION_STRING);
-    await mongoose.connect(MDB_CONNECTION_STRING, {
+    console.log('Connect: ' + process.env.MDB_CONNECTION_STRING);
+    await mongoose.connect(process.env.MDB_CONNECTION_STRING, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });

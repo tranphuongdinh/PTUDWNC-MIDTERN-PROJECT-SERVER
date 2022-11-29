@@ -1,8 +1,10 @@
 import jwt from "jsonwebtoken";
-import { SECRET_TOKEN, STATUS } from "../constants/common.js";
+import { STATUS } from "../constants/common.js";
 import { BAD_REQUEST_STATUS_CODE, FORBIDDEN_STATUS_CODE, UNAUTHENTICATED_STATUS_CODE, UNAUTHENTICATED_STATUS_MESSAGE } from "../constants/http-response.js";
 import { APIResponse } from "../models/APIResponse.js";
 import User from "../models/user.model.js";
+import dotenv from 'dotenv'
+dotenv.config()
 
 const authenticationMiddleware = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -14,7 +16,7 @@ const authenticationMiddleware = async (req, res, next) => {
   const token = authHeader.split(" ")[1];
 
   try {
-    jwt.verify(token, SECRET_TOKEN, async (err, decodedToken) => {
+    jwt.verify(token, process.env.SECRET_TOKEN, async (err, decodedToken) => {
       if (err) {
         return res.status(FORBIDDEN_STATUS_CODE).json({ message: err.message, data: [], status: STATUS.ERROR });
       } else {
