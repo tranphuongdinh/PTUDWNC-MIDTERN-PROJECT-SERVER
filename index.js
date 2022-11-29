@@ -1,10 +1,11 @@
 import cookieSession from "cookie-session";
 import cors from "cors";
+import dotenv from "dotenv";
 import express from "express";
+import findConfig from "find-config";
 import route from "./components/root/root.route.js";
 import DbConnect from "./config/db/index.js";
-import dotenv from 'dotenv'
-dotenv.config()
+dotenv.config({ path: findConfig(".env") });
 
 const app = express();
 
