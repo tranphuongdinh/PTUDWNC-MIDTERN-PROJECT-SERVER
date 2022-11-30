@@ -60,7 +60,7 @@ export const register = async (req, res) => {
       `<p> Please click to this link to verify your account: <a href="${process.env.CLIENT_DOMAIN}/active?userId=${registerUser._doc._id}&activeCode=${registerUser._doc.activeCode}">${process.env.CLIENT_DOMAIN}/active?userId=${registerUser._doc._id}&activeCode=${registerUser._doc.activeCode}</a> </p>`
     );
 
-    const access_token = jwt.sign(newUser, process.env.SECRET_TOKEN);
+    const access_token = jwt.sign({ user: newUser }, process.env.SECRET_TOKEN);
 
     return res.status(SUCCESS_STATUS_CODE).json({ code: STATUS.OK, message: SUCCESS_STATUS_MESSAGE, data: [{ ...newUser, access_token }] });
   } catch (err) {
@@ -135,10 +135,12 @@ export const loginWithGoogle = async (req, res) => {
         joinedGroupIds: [],
         isActive: true,
         activeCode: uuidv4(),
+        password: newPassword,
       };
 
-      const access_token = jwt.sign(newUser, process.env.SECRET_TOKEN);
-      return res.status(SUCCESS_STATUS_CODE).json({ status: STATUS.OK, message: SUCCESS_STATUS_MESSAGE, data: [{ ...newUser, access_token }] });
+      const registerUser = await User.create(newUser);
+      const access_token = jwt.sign({ user: registerUser._doc }, process.env.SECRET_TOKEN);
+      return res.status(SUCCESS_STATUS_CODE).json({ status: STATUS.OK, message: SUCCESS_STATUS_MESSAGE, data: [{ ...registerUser?._doc, access_token }] });
     } else {
       const access_token = jwt.sign({ user: user._doc }, process.env.SECRET_TOKEN);
       return res.status(SUCCESS_STATUS_CODE).json({

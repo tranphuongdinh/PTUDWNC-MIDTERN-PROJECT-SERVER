@@ -1,7 +1,6 @@
 export const AUTH_ROUTE = {
   REGISTER: "/register",
   LOGIN: "/login",
-  GITHUB_LOGIN: "/login/github",
   GOOGLE_LOGIN: "/login/google",
 };
 

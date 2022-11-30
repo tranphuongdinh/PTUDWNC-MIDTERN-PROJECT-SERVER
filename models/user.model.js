@@ -5,12 +5,10 @@ const User = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   password: { type: String },
-  googleId: { type: String },
-  githubId: { type: String },
   myGroupIds: [{ type: mongoose.Types.ObjectId, required: true, ref: "Group" }],
   joinedGroupIds: [{ type: mongoose.Types.ObjectId, required: true, ref: "Group" }],
   isActive: { type: Boolean, required: true },
-  activeCode: {type: String}
+  activeCode: { type: String },
 });
 
 export default mongoose.model("User", User);
