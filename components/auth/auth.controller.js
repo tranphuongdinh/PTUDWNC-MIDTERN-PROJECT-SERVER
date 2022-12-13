@@ -44,6 +44,7 @@ export const register = async (req, res) => {
       email,
       myGroupIds: [],
       joinedGroupIds: [],
+      presentationIds: [],
       isActive: false,
       activeCode: uuidv4(),
     };
@@ -133,6 +134,7 @@ export const loginWithGoogle = async (req, res) => {
         email,
         myGroupIds: [],
         joinedGroupIds: [],
+        presentationIds: [],
         isActive: true,
         activeCode: uuidv4(),
         password: newPassword,

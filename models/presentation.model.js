@@ -4,7 +4,9 @@ const Presentation = new mongoose.Schema({
   name: { type: String, required: true },
   isPublic: { type: Boolean, required: true },
   isPresent: { type: Boolean, required: true },
-  slides: {type: String},
+  slides: {
+    type: String
+  },
   ownerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -13,7 +15,6 @@ const Presentation = new mongoose.Schema({
   groupId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Group',
-    require: true,
   },
 });
 
