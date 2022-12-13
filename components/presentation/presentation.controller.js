@@ -51,7 +51,7 @@ export const createPresentation = async (req, res) => {
     ownerId: user._id,
     isPublic: groupId ? false : true,
     isPresent: false,
-    slides: [],
+    slides: JSON.stringify([]),
     groupId,
   }
 
