@@ -5,6 +5,10 @@ import express from "express";
 import findConfig from "find-config";
 import route from "./components/root/root.route.js";
 import DbConnect from "./config/db/index.js";
+import { Server } from "socket.io";
+import http from "http"
+import presentationModel from "./models/presentation.model.js";
+
 dotenv.config({ path: findConfig(".env") });
 
 const app = express();
@@ -18,6 +22,23 @@ app.use(cors());
 
 route(app);
 
-app.listen(process.env.PORT || 1400, () => {
+const server = http.createServer(app)
+
+const io = new Server(server);
+
+io.on("connection", (socket) => {
+  socket.on("vote", async (data) => {
+    try {
+      await presentationModel.findByIdAndUpdate(data._id, data);
+      io.emit("voted", data);
+    } catch (e) {
+      io.emit("voted", null)
+    }
+  });
+
+  socket.on("clientChangeSlideIndex", data => io.emit("changeSlideIndex", data))
+});
+
+server.listen(process.env.PORT || 1400, () => {
   console.log("Server started on " + process.env.PORT || 1400);
 });
