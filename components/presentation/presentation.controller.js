@@ -131,7 +131,7 @@ export const deletePresentation = async (req, res) => {
   try {
     await existPresentation.remove();
     const owner = await userModel.findById(user._id);
-    owner.presentationIds.splice(owner.presentationIds.indexOf(id))
+    owner.presentationIds.splice(owner.presentationIds.indexOf(id), 1)
     await owner.save();
   } catch (error) {
     return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
