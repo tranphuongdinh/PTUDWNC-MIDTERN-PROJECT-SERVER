@@ -6,7 +6,7 @@ import findConfig from "find-config";
 import route from "./components/root/root.route.js";
 import DbConnect from "./config/db/index.js";
 import { Server } from "socket.io";
-import http from "http"
+import http from "http";
 import presentationModel from "./models/presentation.model.js";
 
 dotenv.config({ path: findConfig(".env") });
@@ -22,7 +22,7 @@ app.use(cors());
 
 route(app);
 
-const server = http.createServer(app)
+const server = http.createServer(app);
 
 const io = new Server(server);
 
@@ -32,11 +32,15 @@ io.on("connection", (socket) => {
       await presentationModel.findByIdAndUpdate(data._id, data);
       io.emit("voted", data);
     } catch (e) {
-      io.emit("voted", null)
+      io.emit("voted", null);
     }
   });
 
-  socket.on("clientChangeSlideIndex", data => io.emit("changeSlideIndex", data))
+  socket.on("clientChangeSlideIndex", (data) => io.emit("changeSlideIndex", data));
+
+  socket.on("clientStartPresent", (data) => io.emit("startPresent", data));
+
+  socket.on("clientStopPresent", (data) => io.emit("stopPresent", data));
 });
 
 server.listen(process.env.PORT || 1400, () => {

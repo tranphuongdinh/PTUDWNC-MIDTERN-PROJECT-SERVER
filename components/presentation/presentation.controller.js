@@ -23,7 +23,7 @@ dotenv.config();
 // Interact Data
 
 export const presentationDetail = async (req, res) => {
-  const id = req.param("id")
+  const id = req.param("id");
   try {
     const presentation = await presentationModel.findById(id);
     return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Get presentation detail successfully", presentation));
@@ -53,9 +53,9 @@ export const createPresentation = async (req, res) => {
     isPresent: false,
     slides: JSON.stringify([]),
     groupId,
-  }
+  };
 
-  if (!groupId) delete data.groupId
+  if (!groupId) delete data.groupId;
 
   const newPresentation = new presentationModel(data);
 
@@ -108,8 +108,8 @@ export const updatePresentation = async (req, res) => {
   return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, SUCCESS_STATUS_MESSAGE, existPresentation));
 };
 
-export const deletePresentaion = async (req, res) => {
-  const { id } = req.body;
+export const deletePresentation = async (req, res) => {
+  const id = req.param("id");
   const user = req.user;
 
   let existPresentation;
@@ -130,6 +130,9 @@ export const deletePresentaion = async (req, res) => {
 
   try {
     await existPresentation.remove();
+    const owner = await userModel.findById(user._id);
+    owner.presentationIds.splice(owner.presentationIds.indexOf(id))
+    await owner.save();
   } catch (error) {
     return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
   }
