@@ -2,6 +2,8 @@ export const AUTH_ROUTE = {
   REGISTER: "/register",
   LOGIN: "/login",
   GOOGLE_LOGIN: "/login/google",
+  VERIFY: "/verify",
+  RESET: "/reset"
 };
 
 export const USER_ROUTE = {

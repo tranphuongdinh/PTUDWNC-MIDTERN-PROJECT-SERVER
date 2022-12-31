@@ -188,3 +188,37 @@ export const verifyAccount = async (req, res) => {
 
   return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Account has been activated!", [user]));
 };
+
+export const resetAccount = async (req, res) => {
+  const { email } = req.body;
+  let user;
+
+  try {
+    user = await User.findOne({ email });
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  }
+
+  if (!user) {
+    return res.status(NOTFOUND_STATUS_CODE).json(APIResponse(STATUS.ERROR, "User not found"));
+  }
+
+  const newPassword = uuidv4()
+  const newHashPassword = await bcrypt.hash(newPassword, 10);
+  user.password = newHashPassword;
+
+  try {
+    await user.save();
+    sendEmail(
+      process.env.EMAIL_HOST,
+      email,
+      "Reset your account",
+      `<p> This is your new password: <h3> ${newPassword} </h3>`
+    );
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  }
+
+  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "New password has been sent to your email"));
+};
+
