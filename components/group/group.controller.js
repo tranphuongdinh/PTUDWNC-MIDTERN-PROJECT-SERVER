@@ -306,31 +306,29 @@ export const removeMember = async (req, res) => {
 // Get Data
 
 export const getGroupDetail = async (req, res) => {
-  const { token } = req.body;
-  const groupId = req.param("groupId");
-  //Get GroupInstance
-  let groupInstance;
-
   try {
-    groupInstance = await groupModel.findById(groupId);
-  } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
-  }
-
-  //Get member
-  const member = jwt.decode(token);
-  let memberUser;
-
-  try {
+    const { token } = req.body;
+    const groupId = req.param("groupId");
+    //Get GroupInstance
+    let groupInstance = await groupModel.findById(groupId)
+  
+    //Get member
+    const member = jwt.decode(token);
+    let memberUser;
+  
     memberUser = await userModel.findOne({ email: member.user.email });
-  } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
-  }
-
-  if (groupInstance.ownerId.equals(memberUser._id) || groupInstance.memberIds.includes(memberUser._id) || groupInstance.coOwnerIds.includes(memberUser._id)) {
-    return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, SUCCESS_STATUS_MESSAGE, groupInstance));
-  } else {
-    return res.status(FORBIDDEN_STATUS_CODE).json(APIResponse(STATUS.ERROR, "You are not allowed to do this"));
+  
+    if (groupInstance.ownerId.equals(memberUser._id) || groupInstance.memberIds.includes(memberUser._id) || groupInstance.coOwnerIds.includes(memberUser._id)) {
+      return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, SUCCESS_STATUS_MESSAGE, groupInstance));
+    } else {
+      return res.status(FORBIDDEN_STATUS_CODE).json(APIResponse(STATUS.ERROR, "You are not allowed to do this"));
+    }
+  } catch (e) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json({
+      status: STATUS.ERROR,
+      data: [],
+      message: e.message,
+    });
   }
 };
 
