@@ -16,6 +16,12 @@ const Presentation = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Group',
   },
+  collaborators: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+  ],
 });
 
 export default mongoose.model('Presentation', Presentation);

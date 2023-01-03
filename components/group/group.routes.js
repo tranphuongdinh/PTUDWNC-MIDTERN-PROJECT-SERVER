@@ -1,6 +1,6 @@
 import express from "express";
 import authenticationMiddleware from "../../middleware/auth.middleware.js";
-import { createGroup, createInviteLink, getGroupByIds, getGroupDetail, inviteByLink, removeMember, upgradeRole, sendEmailInvite } from "./group.controller.js";
+import { createGroup, createInviteLink, getGroupByIds, getGroupDetail, inviteByLink, removeMember, upgradeRole, sendEmailInvite, delGroupByIds } from "./group.controller.js";
 
 const router = express.Router();
 
@@ -15,5 +15,6 @@ router.post("/remove", authenticationMiddleware, removeMember);
 // GET: Member and Group Data
 router.get("/detail/:groupId", authenticationMiddleware, getGroupDetail);
 router.post("/list", authenticationMiddleware, getGroupByIds);
+router.delete("/list/:id", authenticationMiddleware, delGroupByIds);
 
 export default router;

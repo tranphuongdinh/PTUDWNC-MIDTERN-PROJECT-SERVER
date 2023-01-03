@@ -6,11 +6,15 @@ import {
   BAD_REQUEST_STATUS_CODE,
   BAD_REQUEST_STATUS_MESSAGE,
   FORBIDDEN_STATUS_CODE,
+  FORBIDDEN_STATUS_MESSAGE,
   INTERNAL_SERVER_STATUS_CODE,
+  INTERNAL_SERVER_STATUS_MESSAGE,
   NOTFOUND_STATUS_CODE,
+  NOTFOUND_STATUS_MESSAGE,
   SUCCESS_STATUS_CODE,
   SUCCESS_STATUS_MESSAGE,
 } from "../../constants/http-response.js";
+
 import { APIResponse } from "../../models/APIResponse.js";
 import groupModel from "../../models/group.model.js";
 import userModel from "../../models/user.model.js";
@@ -360,4 +364,50 @@ export const getGroupByIds = async (req, res) => {
       message: e.message,
     });
   }
+};
+
+export const delGroupByIds = async (req, res) => {
+  const id = req.param("id");
+
+  //Get Owner
+  const owner = { user: req.user };
+  let ownerUser;
+
+  try {
+    ownerUser = await userModel.findOne({ email: owner.user.email });
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  }
+
+  let existGroup;
+  //Check name exists
+  try {
+    existGroup = await groupModel.findById(id);
+    if (!existGroup) {
+      return res.status(NOTFOUND_STATUS_CODE).json(APIResponse(STATUS.ERROR, NOTFOUND_STATUS_MESSAGE, "Group not found"));
+    }
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+  }
+
+  //Check owner of group
+  if (!existGroup.ownerId.equals(req.user._id)) {
+    return res.status(FORBIDDEN_STATUS_CODE).json(APIResponse(STATUS.ERROR, FORBIDDEN_STATUS_MESSAGE, "You are not allowed"));
+  }
+
+  try {
+    await groupModel.deleteOne({ _id: id });
+    let index = ownerUser.myGroupIds.indexOf(id);
+    if (index > -1) {
+      ownerUser.myGroupIds.splice(index, 1);
+    }
+    await ownerUser.save()
+
+    await userModel.updateMany({ joinedGroupIds: id }, { $pull: { joinedGroupIds: id } })
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
+  }
+
+  //ALL SUCCESS
+  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, SUCCESS_STATUS_MESSAGE, "Remove successfully"));
 };

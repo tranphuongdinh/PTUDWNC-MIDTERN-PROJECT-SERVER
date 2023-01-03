@@ -172,3 +172,95 @@ export const getPresentationByIds = async (req, res) => {
     });
   }
 };
+
+export const addCollaborator = async (req, res) => {
+  const { collaboratorId, presentationId, userId } = req.body
+
+  //Get Member
+  let owner;
+
+  try {
+    owner = await userModel.findById(userId);
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  }
+
+  //Get Member
+  let collaborator;
+
+  try {
+    collaborator = await userModel.findById(collaboratorId);
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  }
+
+  if (!owner) {
+    return res.status(NOTFOUND_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  }
+
+  //Get GroupInstance
+  let presentationInstance;
+
+  try {
+    presentationInstance = await presentationModel.findById(presentationId);
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  }
+
+  if (!presentationInstance.ownerId.equals(userId)) {
+    return res.status(FORBIDDEN_STATUS_CODE).json(APIResponse(STATUS.ERROR, "You are not allowed to do this", []));
+  }
+
+  try {
+    presentationInstance.collaborators.push(collaborator);
+    await presentationInstance.save()
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  }
+
+  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Add member successfully"), collaborator);
+
+}
+
+export const removeCollaborator = async (req, res) => {
+  const { collaboratorId, presentationId, userId } = req.body
+
+  //Get Member
+  let owner;
+
+  try {
+    owner = await userModel.findById(userId);
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  }
+
+  if (!owner) {
+    return res.status(NOTFOUND_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  }
+
+  //Get GroupInstance
+  let presentationInstance;
+
+  try {
+    presentationInstance = await presentationModel.findById(presentationId);
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  }
+
+  if (!presentationInstance.ownerId.equals(userId)) {
+    return res.status(FORBIDDEN_STATUS_CODE).json(APIResponse(STATUS.ERROR, "You are not allowed to do this", []));
+  }
+
+  try {
+    let index = presentationInstance.collaborators.indexOf(collaboratorId);
+    if (index > -1) {
+      presentationInstance.collaborators.splice(index, 1);
+    }
+
+    await presentationInstance.save()
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  }
+
+  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Remove collaborator successfully"));
+}

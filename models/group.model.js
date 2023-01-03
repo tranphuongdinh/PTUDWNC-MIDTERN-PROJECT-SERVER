@@ -23,3 +23,4 @@ const Group = new mongoose.Schema({
 });
 
 export default mongoose.model('Group', Group);
+
