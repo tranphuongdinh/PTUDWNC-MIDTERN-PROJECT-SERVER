@@ -174,7 +174,7 @@ export const getPresentationByIds = async (req, res) => {
 };
 
 export const addCollaborator = async (req, res) => {
-  const { collaboratorId, presentationId, userId } = req.body
+  const { collaboratorEmail, presentationId, userId } = req.body
 
   //Get Member
   let owner;
@@ -189,13 +189,13 @@ export const addCollaborator = async (req, res) => {
   let collaborator;
 
   try {
-    collaborator = await userModel.findById(collaboratorId);
+    collaborator = await userModel.findOne({ email: collaboratorEmail });
   } catch (error) {
     return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
-  if (!owner) {
-    return res.status(NOTFOUND_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  if (!owner || !collaborator) {
+    return res.status(NOTFOUND_STATUS_CODE).json(APIResponse(STATUS.ERROR, "Collaborator is not found!"));
   }
 
   //Get GroupInstance
@@ -218,7 +218,7 @@ export const addCollaborator = async (req, res) => {
     return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
-  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Add member successfully"), collaborator);
+  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Add member successfully",collaborator));
 
 }
 
