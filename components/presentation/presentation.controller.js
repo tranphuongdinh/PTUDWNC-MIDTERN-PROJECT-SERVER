@@ -234,8 +234,10 @@ export const removeCollaborator = async (req, res) => {
     return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
-  if (!owner) {
-    return res.status(NOTFOUND_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  if (!owner || !collaboratorId) {
+    return res
+      .status(NOTFOUND_STATUS_CODE)
+      .json(APIResponse(STATUS.ERROR, "Collaborator is not found"));
   }
 
   //Get GroupInstance
