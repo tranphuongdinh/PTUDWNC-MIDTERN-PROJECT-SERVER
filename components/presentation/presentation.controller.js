@@ -146,11 +146,11 @@ export const getPresentationByIds = async (req, res) => {
     if (req.user) {
       const { ids = [] } = req.body;
 
-      const presentationList = await presentationModel.find({
+      const presentationList = ids?.length > 0 ? await presentationModel.find({
         _id: {
           $in: ids,
         },
-      });
+      }) : await presentationModel.find()
 
       return res.status(SUCCESS_STATUS_CODE).json({
         status: STATUS.OK,
