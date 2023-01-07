@@ -81,7 +81,7 @@ io.on("connection", (socket) => {
     try {
       const { userName, presentationId, content } = data;
       const newQuestion = await questionModel.create({
-        userName,
+        userName: data.userName || "Anonymous",
         presentationId,
         content,
         hasAnswer: false,
