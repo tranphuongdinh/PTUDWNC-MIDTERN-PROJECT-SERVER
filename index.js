@@ -10,6 +10,7 @@ import DbConnect from "./config/db/index.js";
 import { Server } from "socket.io";
 import http from "http";
 import presentationModel from "./models/presentation.model.js";
+import questionModel from "./models/question.model.js";
 
 dotenv.config({ path: findConfig(".env") });
 
@@ -62,11 +63,84 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("clientChangeSlideIndex", (data) => io.emit("changeSlideIndex", data));
+  socket.on("clientChangeSlideIndex", (data) =>
+    io.emit("changeSlideIndex", data)
+  );
 
   socket.on("clientStartPresent", (data) => io.emit("startPresent", data));
 
-  socket.on("clientStopPresent", (data) => io.emit("stopPresent", data));
+  socket.on("clientStopPresent", async (data) => {
+    try {
+      await questionModel.remove({ presentationId: data });
+    } catch (error) {}
+
+    io.emit("stopPresent", data);
+  });
+
+  socket.on("clientSendQuestion", async (data) => {
+    try {
+      const { userName, presentationId, content } = data;
+      const newQuestion = await questionModel.create({
+        userName,
+        presentationId,
+        content,
+        hasAnswer: false,
+        createdDate: new Date(),
+        vote: 0,
+      });
+
+      io.emit("sendQuestion", newQuestion);
+    } catch (error) {
+      io.emit("sendQuestion", null);
+    }
+  });
+  socket.on("clientUpdateQuestion", async (data) => {
+    try {
+      const newQuestion = await questionModel.findOneAndUpdate(
+        { _id: data?._id },
+        {
+          $set: {
+            vote: data.vote,
+          },
+        }
+      );
+      io.emit("updateQuestion", newQuestion);
+    } catch (error) {
+      io.emit("updateQuestion", null);
+    }
+  });
+  socket.on("clientSendQuestion", async (data) => {
+    try {
+      const { userName, presentationId, content } = data;
+      const newQuestion = await questionModel.create({
+        userName,
+        presentationId,
+        content,
+        hasAnswer: false,
+        createdDate: new Date(),
+        vote: 0,
+      });
+
+      io.emit("sendQuestion", newQuestion);
+    } catch (error) {
+      io.emit("sendQuestion", null);
+    }
+  });
+  socket.on("clientUpdateQuestion", async (data) => {
+    try {
+      const newQuestion = await questionModel.findOneAndUpdate(
+        { _id: data?._id },
+        {
+          $set: {
+            vote: data.vote,
+          },
+        }
+      );
+      io.emit("updateQuestion", newQuestion);
+    } catch (error) {
+      io.emit("updateQuestion", null);
+    }
+  });
 });
 
 server.listen(process.env.PORT || 1400, () => {

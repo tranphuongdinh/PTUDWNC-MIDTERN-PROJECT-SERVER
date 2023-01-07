@@ -17,6 +17,7 @@ import {
 import { APIResponse } from "../../models/APIResponse.js";
 import groupModel from "../../models/group.model.js";
 import userModel from "../../models/user.model.js";
+import questionModel from "../../models/question.model.js";
 import dotenv from "dotenv";
 import presentationModel from "../../models/presentation.model.js";
 dotenv.config();
@@ -273,3 +274,21 @@ export const removeCollaborator = async (req, res) => {
 
   return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Remove collaborator successfully"));
 }
+
+export const getQuestions = async (req, res) => {
+  try {
+    const id = req.param("id");
+    const questionList = await questionModel.find({
+      presentationId: id,
+    });
+    res
+      .status(SUCCESS_STATUS_CODE)
+      .json(
+        APIResponse(STATUS.OK, "Get question list successfully", questionList)
+      );
+  } catch (error) {
+    return res
+      .status(INTERNAL_SERVER_STATUS_CODE)
+      .json(APIResponse(STATUS.ERROR, error.message));
+  }
+};

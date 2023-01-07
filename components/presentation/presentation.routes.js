@@ -1,6 +1,6 @@
 import express from "express";
 import authenticationMiddleware from "../../middleware/auth.middleware.js";
-import { createPresentation, updatePresentation, deletePresentation, presentationDetail, getPresentationByIds, addCollaborator, removeCollaborator } from "./presentation.controller.js";
+import { createPresentation, updatePresentation, deletePresentation, presentationDetail, getPresentationByIds, addCollaborator, removeCollaborator, getQuestions } from "./presentation.controller.js";
 const router = express.Router();
 
 // POST: Interact with member
@@ -13,5 +13,8 @@ router.post("/list", authenticationMiddleware, getPresentationByIds)
 // Colaborations
 router.post("/collaboration/add",authenticationMiddleware, addCollaborator )
 router.put('/collaboration/remove', authenticationMiddleware, removeCollaborator)
+
+// Question
+router.get("/questions/:id", authenticationMiddleware, getQuestions);
 
 export default router;
