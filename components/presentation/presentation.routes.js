@@ -15,6 +15,6 @@ router.post("/collaboration/add",authenticationMiddleware, addCollaborator )
 router.put('/collaboration/remove', authenticationMiddleware, removeCollaborator)
 
 // Question
-router.get("/questions/:id", authenticationMiddleware, getQuestions);
+router.get("/questions/:id", getQuestions);
 
 export default router;
