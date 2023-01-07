@@ -159,15 +159,13 @@ export const sendEmailInvite = async (req, res) => {
   const { link, email, ownerName } = req.body;
 
   try {
-    sendEmail(process.env.EMAIL_HOST, email,
-      "Invited to a group",
-      `<p> ${ownerName ? ownerName : 'Someone'} has invited you to a group, click to join: <a href="${link}"> ${link} </a></p>`)
+    sendEmail(process.env.EMAIL_HOST, email, "Invited to a group", `<p> ${ownerName ? ownerName : "Someone"} has invited you to a group, click to join: <a href="${link}"> ${link} </a></p>`);
   } catch (error) {
     return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
-  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, SUCCESS_STATUS_MESSAGE, 'Send invited link successully !!!'))
-}
+  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, SUCCESS_STATUS_MESSAGE, "Send invited link successully !!!"));
+};
 
 export const upgradeRole = async (req, res) => {
   const { memberId, roleCode, groupId, token, isUpgrade } = req.body;
@@ -310,14 +308,14 @@ export const getGroupDetail = async (req, res) => {
     const { token } = req.body;
     const groupId = req.param("groupId");
     //Get GroupInstance
-    let groupInstance = await groupModel.findById(groupId)
-  
+    let groupInstance = await groupModel.findById(groupId);
+
     //Get member
     const member = jwt.decode(token);
     let memberUser;
-  
+
     memberUser = await userModel.findOne({ email: member.user.email });
-  
+
     if (groupInstance.ownerId.equals(memberUser._id) || groupInstance.memberIds.includes(memberUser._id) || groupInstance.coOwnerIds.includes(memberUser._id)) {
       return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, SUCCESS_STATUS_MESSAGE, groupInstance));
     } else {
@@ -337,11 +335,14 @@ export const getGroupByIds = async (req, res) => {
     if (req.user) {
       const { ids = [] } = req.body;
 
-      const groupList = await groupModel.find({
-        _id: {
-          $in: ids,
-        },
-      });
+      const groupList =
+        ids?.length > 0
+          ? await groupModel.find({
+              _id: {
+                $in: ids,
+              },
+            })
+          : await groupModel.find();
 
       return res.status(SUCCESS_STATUS_CODE).json({
         status: STATUS.OK,
@@ -399,9 +400,9 @@ export const delGroupByIds = async (req, res) => {
     if (index > -1) {
       ownerUser.myGroupIds.splice(index, 1);
     }
-    await ownerUser.save()
+    await ownerUser.save();
 
-    await userModel.updateMany({ joinedGroupIds: id }, { $pull: { joinedGroupIds: id } })
+    await userModel.updateMany({ joinedGroupIds: id }, { $pull: { joinedGroupIds: id } });
   } catch (error) {
     return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
   }

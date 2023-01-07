@@ -12,6 +12,6 @@ router.post("/list", authenticationMiddleware, getPresentationByIds)
 
 // Colaborations
 router.post("/collaboration/add",authenticationMiddleware, addCollaborator )
-router.delete('/collaboration/remove', authenticationMiddleware, removeCollaborator)
+router.put('/collaboration/remove', authenticationMiddleware, removeCollaborator)
 
 export default router;

@@ -88,7 +88,7 @@ export const updatePresentation = async (req, res) => {
   }
 
   //Check owner of presentation
-  if (!existPresentation.ownerId.equals(user._id)) {
+  if (!existPresentation.ownerId.equals(user._id) && !existPresentation.collaborators.includes(user._id)) {
     return res.status(FORBIDDEN_STATUS_CODE).json(APIResponse(STATUS.ERROR, FORBIDDEN_STATUS_MESSAGE, "You are not allowed"));
   }
 
@@ -194,8 +194,12 @@ export const addCollaborator = async (req, res) => {
     return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
+  if (owner?.email === collaborator?.email) {
+    return res.status(BAD_REQUEST_STATUS_CODE).json(APIResponse(STATUS.ERROR, "You are the owner of this presentation!"));
+  }
+
   if (!owner || !collaborator) {
-    return res.status(NOTFOUND_STATUS_CODE).json(APIResponse(STATUS.ERROR, "Collaborator is not found!"));
+    return res.status(NOTFOUND_STATUS_CODE).json(APIResponse(STATUS.ERROR, "Collaborator is not existed!"));
   }
 
   //Get GroupInstance
@@ -211,6 +215,10 @@ export const addCollaborator = async (req, res) => {
     return res.status(FORBIDDEN_STATUS_CODE).json(APIResponse(STATUS.ERROR, "You are not allowed to do this", []));
   }
 
+  if (presentationInstance.collaborators?.includes(collaborator._id)) {
+    return res.status(BAD_REQUEST_STATUS_CODE).json(APIResponse(STATUS.ERROR, "This user is presentation's collaborator now"));
+  }
+
   try {
     presentationInstance.collaborators.push(collaborator);
     await presentationInstance.save()
@@ -224,7 +232,6 @@ export const addCollaborator = async (req, res) => {
 
 export const removeCollaborator = async (req, res) => {
   const { collaboratorId, presentationId, userId } = req.body
-
   //Get Member
   let owner;
 
