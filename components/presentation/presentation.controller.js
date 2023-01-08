@@ -12,7 +12,6 @@ import {
   SUCCESS_STATUS_MESSAGE,
 } from "../../constants/http-response.js";
 import { APIResponse } from "../../models/APIResponse.js";
-import GroupPresentation from "../../models/GroupPresentation.js";
 import presentationModel from "../../models/presentation.model.js";
 import questionModel from "../../models/question.model.js";
 import userModel from "../../models/user.model.js";
@@ -93,7 +92,7 @@ export const updatePresentation = async (req, res) => {
   existPresentation.isPublic = typeof isPublic === "boolean" ? isPublic : existPresentation.isPublic;
   existPresentation.isPresent = typeof isPresent === "boolean" ? isPresent : existPresentation.isPresent;
   existPresentation.slides = slides || existPresentation.slides;
-  existPresentation.groupId = groupId || existPresentation.groupId;
+  existPresentation.groupId = groupId || '';
 
   try {
     await existPresentation.save();
@@ -278,57 +277,6 @@ export const getQuestions = async (req, res) => {
       presentationId: id,
     });
     res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Get question list successfully", questionList));
-  } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
-  }
-};
-
-export const getGroupPresentation = async (req, res) => {
-  try {
-    const existedRef = await GroupPresentation.find();
-
-    if (existedRef) {
-      res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Get assign group presentation successfully", existedRef));
-    } else {
-      res.status(NOTFOUND_STATUS_CODE).json(APIResponse(STATUS.ERROR, "Not found"));
-    }
-  } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
-  }
-};
-
-export const assignPresentationToGroup = async (req, res) => {
-  try {
-    const { presentationId, groupId } = req.body;
-    const userId = req.user._id;
-
-    const existedRef = await GroupPresentation.findOne({ presentationId });
-
-    if (!existedRef) {
-      const data = await GroupPresentation.create({ presentationId, groupId, userId });
-      res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Assign group to presentation successfully", data));
-    } else {
-      const data = await GroupPresentation.findOneAndUpdate({ presentationId }, { groupId });
-      res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Assign group to presentation successfully", data));
-    }
-  } catch (error) {
-    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
-  }
-};
-
-export const removeGroupFromPresentation = async (req, res) => {
-  try {
-    const { presentationId } = req.body;
-
-    const existedRef = await GroupPresentation.findOne({ presentationId });
-
-    if (!existedRef) {
-      const data = await GroupPresentation.create({ presentationId, groupId: "", userId });
-      res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Remove group from presentation successfully", data));
-    } else {
-      const data = await GroupPresentation.updateOne({ presentationId }, { groupId: "" });
-      res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Remove group from presentation successfully", data));
-    }
   } catch (error) {
     return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }

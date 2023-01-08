@@ -1,14 +1,14 @@
-import cookieSession from "cookie-session";
 import * as Sentry from "@sentry/node";
 import * as Tracing from "@sentry/tracing";
+import cookieSession from "cookie-session";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import findConfig from "find-config";
+import http from "http";
+import { Server } from "socket.io";
 import route from "./components/root/root.route.js";
 import DbConnect from "./config/db/index.js";
-import { Server } from "socket.io";
-import http from "http";
 import presentationModel from "./models/presentation.model.js";
 import questionModel from "./models/question.model.js";
 
@@ -76,6 +76,8 @@ io.on("connection", (socket) => {
 
     io.emit("stopPresent", data);
   });
+
+  socket.on("clientStopPresentByUpdateGroup", (data) => io.emit("stopPresentByUpdateGroup", data));
 
   socket.on("clientSendQuestion", async (data) => {
     try {

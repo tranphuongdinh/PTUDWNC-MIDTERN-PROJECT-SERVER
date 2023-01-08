@@ -13,8 +13,7 @@ const Presentation = new mongoose.Schema({
     require: true,
   },
   groupId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Group',
+    type: String
   },
   collaborators: [
     {
