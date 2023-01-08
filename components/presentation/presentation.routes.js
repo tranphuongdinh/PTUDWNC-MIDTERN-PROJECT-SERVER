@@ -1,6 +1,6 @@
 import express from "express";
 import authenticationMiddleware from "../../middleware/auth.middleware.js";
-import { createPresentation, updatePresentation, deletePresentation, presentationDetail, getPresentationByIds, addCollaborator, removeCollaborator, getQuestions } from "./presentation.controller.js";
+import { addCollaborator, assignPresentationToGroup, createPresentation, deletePresentation, getGroupPresentation, getPresentationByIds, getQuestions, presentationDetail, removeCollaborator, removeGroupFromPresentation, updatePresentation } from "./presentation.controller.js";
 const router = express.Router();
 
 // POST: Interact with member
@@ -16,5 +16,11 @@ router.put('/collaboration/remove', authenticationMiddleware, removeCollaborator
 
 // Question
 router.get("/questions/:id", getQuestions);
+
+// Assign group to presentation
+router.get("/assign-group", authenticationMiddleware, getGroupPresentation)
+router.post("/assign-group", authenticationMiddleware, assignPresentationToGroup);
+router.post("/remove-assign-group", authenticationMiddleware, removeGroupFromPresentation);
+
 
 export default router;

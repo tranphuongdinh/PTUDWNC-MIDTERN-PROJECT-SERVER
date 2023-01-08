@@ -15,10 +15,11 @@ import {
   SUCCESS_STATUS_MESSAGE,
 } from "../../constants/http-response.js";
 
+import dotenv from "dotenv";
 import { APIResponse } from "../../models/APIResponse.js";
+import GroupPresentation from "../../models/GroupPresentation.js";
 import groupModel from "../../models/group.model.js";
 import userModel from "../../models/user.model.js";
-import dotenv from "dotenv";
 dotenv.config();
 // Interact Data
 
@@ -410,3 +411,20 @@ export const delGroupByIds = async (req, res) => {
   //ALL SUCCESS
   return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, SUCCESS_STATUS_MESSAGE, "Remove successfully"));
 };
+
+export const getAssignedPresentation = async (req, res) => {
+  try {
+    const { groupId } = req.body;
+ 
+    const data = await GroupPresentation.findOne({ groupId });
+
+    if (existedRef) {
+      res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Get presentation successfully", data));
+    } else {
+      res.status(NOTFOUND_STATUS_CODE).json(APIResponse(STATUS.OK, "Not found"));
+    }
+    
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  }
+}

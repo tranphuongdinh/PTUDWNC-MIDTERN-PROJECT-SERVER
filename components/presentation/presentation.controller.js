@@ -1,10 +1,7 @@
-import jwt from "jsonwebtoken";
-import { v4 as uuidv4 } from "uuid";
-import { sendEmail } from "../../config/email/emailService.js";
+import dotenv from "dotenv";
 import { STATUS } from "../../constants/common.js";
 import {
   BAD_REQUEST_STATUS_CODE,
-  BAD_REQUEST_STATUS_MESSAGE,
   FORBIDDEN_STATUS_CODE,
   FORBIDDEN_STATUS_MESSAGE,
   INTERNAL_SERVER_STATUS_CODE,
@@ -15,11 +12,10 @@ import {
   SUCCESS_STATUS_MESSAGE,
 } from "../../constants/http-response.js";
 import { APIResponse } from "../../models/APIResponse.js";
-import groupModel from "../../models/group.model.js";
-import userModel from "../../models/user.model.js";
-import questionModel from "../../models/question.model.js";
-import dotenv from "dotenv";
+import GroupPresentation from "../../models/GroupPresentation.js";
 import presentationModel from "../../models/presentation.model.js";
+import questionModel from "../../models/question.model.js";
+import userModel from "../../models/user.model.js";
 dotenv.config();
 // Interact Data
 
@@ -132,7 +128,7 @@ export const deletePresentation = async (req, res) => {
   try {
     await existPresentation.remove();
     const owner = await userModel.findById(user._id);
-    owner.presentationIds.splice(owner.presentationIds.indexOf(id), 1)
+    owner.presentationIds.splice(owner.presentationIds.indexOf(id), 1);
     await owner.save();
   } catch (error) {
     return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, INTERNAL_SERVER_STATUS_MESSAGE, error.message));
@@ -147,11 +143,14 @@ export const getPresentationByIds = async (req, res) => {
     if (req.user) {
       const { ids = [] } = req.body;
 
-      const presentationList = ids?.length > 0 ? await presentationModel.find({
-        _id: {
-          $in: ids,
-        },
-      }) : await presentationModel.find()
+      const presentationList =
+        ids?.length > 0
+          ? await presentationModel.find({
+              _id: {
+                $in: ids,
+              },
+            })
+          : await presentationModel.find();
 
       return res.status(SUCCESS_STATUS_CODE).json({
         status: STATUS.OK,
@@ -175,7 +174,7 @@ export const getPresentationByIds = async (req, res) => {
 };
 
 export const addCollaborator = async (req, res) => {
-  const { collaboratorEmail, presentationId, userId } = req.body
+  const { collaboratorEmail, presentationId, userId } = req.body;
 
   //Get Member
   let owner;
@@ -222,17 +221,16 @@ export const addCollaborator = async (req, res) => {
 
   try {
     presentationInstance.collaborators.push(collaborator);
-    await presentationInstance.save()
+    await presentationInstance.save();
   } catch (error) {
     return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
-  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Add member successfully",collaborator));
-
-}
+  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Add member successfully", collaborator));
+};
 
 export const removeCollaborator = async (req, res) => {
-  const { collaboratorId, presentationId, userId } = req.body
+  const { collaboratorId, presentationId, userId } = req.body;
   //Get Member
   let owner;
 
@@ -243,9 +241,7 @@ export const removeCollaborator = async (req, res) => {
   }
 
   if (!owner || !collaboratorId) {
-    return res
-      .status(NOTFOUND_STATUS_CODE)
-      .json(APIResponse(STATUS.ERROR, "Collaborator is not found"));
+    return res.status(NOTFOUND_STATUS_CODE).json(APIResponse(STATUS.ERROR, "Collaborator is not found"));
   }
 
   //Get GroupInstance
@@ -267,13 +263,13 @@ export const removeCollaborator = async (req, res) => {
       presentationInstance.collaborators.splice(index, 1);
     }
 
-    await presentationInstance.save()
+    await presentationInstance.save();
   } catch (error) {
     return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 
   return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Remove collaborator successfully"));
-}
+};
 
 export const getQuestions = async (req, res) => {
   try {
@@ -281,14 +277,59 @@ export const getQuestions = async (req, res) => {
     const questionList = await questionModel.find({
       presentationId: id,
     });
-    res
-      .status(SUCCESS_STATUS_CODE)
-      .json(
-        APIResponse(STATUS.OK, "Get question list successfully", questionList)
-      );
+    res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Get question list successfully", questionList));
   } catch (error) {
-    return res
-      .status(INTERNAL_SERVER_STATUS_CODE)
-      .json(APIResponse(STATUS.ERROR, error.message));
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  }
+};
+
+export const getGroupPresentation = async (req, res) => {
+  try {
+    const existedRef = await GroupPresentation.find();
+
+    if (existedRef) {
+      res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Get assign group presentation successfully", existedRef));
+    } else {
+      res.status(NOTFOUND_STATUS_CODE).json(APIResponse(STATUS.ERROR, "Not found"));
+    }
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  }
+};
+
+export const assignPresentationToGroup = async (req, res) => {
+  try {
+    const { presentationId, groupId } = req.body;
+    const userId = req.user._id;
+
+    const existedRef = await GroupPresentation.findOne({ presentationId });
+
+    if (!existedRef) {
+      const data = await GroupPresentation.create({ presentationId, groupId, userId });
+      res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Assign group to presentation successfully", data));
+    } else {
+      const data = await GroupPresentation.findOneAndUpdate({ presentationId }, { groupId });
+      res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Assign group to presentation successfully", data));
+    }
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  }
+};
+
+export const removeGroupFromPresentation = async (req, res) => {
+  try {
+    const { presentationId } = req.body;
+
+    const existedRef = await GroupPresentation.findOne({ presentationId });
+
+    if (!existedRef) {
+      const data = await GroupPresentation.create({ presentationId, groupId: "", userId });
+      res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Remove group from presentation successfully", data));
+    } else {
+      const data = await GroupPresentation.updateOne({ presentationId }, { groupId: "" });
+      res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Remove group from presentation successfully", data));
+    }
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
 };
