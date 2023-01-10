@@ -82,7 +82,7 @@ io.on("connection", (socket) => {
     try {
       const { userName, presentationId, content } = data;
       const newQuestion = await questionModel.create({
-        userName: data.userName || "Anonymous",
+        userName: userName || "Anonymous",
         presentationId,
         content,
         hasAnswer: false,
@@ -95,6 +95,7 @@ io.on("connection", (socket) => {
       io.emit("sendQuestion", null);
     }
   });
+
   socket.on("clientUpdateQuestion", async (data) => {
     try {
       const newQuestion = await questionModel.findOneAndUpdate(
@@ -110,23 +111,7 @@ io.on("connection", (socket) => {
       io.emit("updateQuestion", null);
     }
   });
-  socket.on("clientSendQuestion", async (data) => {
-    try {
-      const { userName, presentationId, content } = data;
-      const newQuestion = await questionModel.create({
-        userName,
-        presentationId,
-        content,
-        hasAnswer: false,
-        createdDate: new Date(),
-        vote: 0,
-      });
 
-      io.emit("sendQuestion", newQuestion);
-    } catch (error) {
-      io.emit("sendQuestion", null);
-    }
-  });
   socket.on("clientUpdateQuestion", async (data) => {
     try {
       const newQuestion = await questionModel.findOneAndUpdate(
