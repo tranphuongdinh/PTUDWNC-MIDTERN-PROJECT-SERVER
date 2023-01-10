@@ -280,4 +280,109 @@ export const getQuestions = async (req, res) => {
   } catch (error) {
     return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
   }
+
 };
+
+
+export const saveChat = async (req, res) => {
+  const { newChats, presentationId } = req.body
+
+  //Get GroupInstance
+  let presentationInstance;
+
+  try {
+    presentationInstance = await presentationModel.findById(presentationId);
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  }
+
+  if (!presentationInstance) {
+    return res
+      .status(NOTFOUND_STATUS_CODE)
+      .json(APIResponse(STATUS.ERROR, "Presentation is not found"));
+  }
+
+  presentationInstance.chat = [...presentationInstance.chat, ...newChats]
+
+  try {
+    await presentationInstance.save()
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  }
+
+  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Save chat successfully"));
+}
+
+export const clearChat = async (req, res) => {
+  const presentationId = req.param('presentationId')
+
+  console.log(presentationId)
+
+  //Get GroupInstance
+  let presentationInstance;
+
+  try {
+    presentationInstance = await presentationModel.findById(presentationId);
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  }
+
+  if (!presentationInstance) {
+    return res
+      .status(NOTFOUND_STATUS_CODE)
+      .json(APIResponse(STATUS.ERROR, "Presentation is not found"));
+  }
+
+  presentationInstance.chat = []
+
+  try {
+    await presentationInstance.save()
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  }
+
+  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Clear chat successfully"));
+}
+
+export const getPreviousChat = async (req, res) => {
+  const presentationId = req.params["presentId"];
+  const page = req.params["page"];
+  const perPage = 10;
+
+  console.log(presentationId, page)
+
+  //Get GroupInstance
+  let presentationInstance;
+
+  try {
+    presentationInstance = await presentationModel.findById(presentationId);
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  }
+
+  if (!presentationInstance) {
+    return res
+      .status(NOTFOUND_STATUS_CODE)
+      .json(APIResponse(STATUS.ERROR, "Presentation is not found"));
+  }
+
+  const allItems = presentationInstance.chat
+
+  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, getPaging(page, perPage, allItems)));
+
+}
+
+const getPaging = (page, perPage, allItems) => {
+  let dataInclude;
+  let countItem = allItems.length - perPage * page;
+
+  if (countItem >= 0) {
+    dataInclude = allItems.slice(countItem, allItems.length);
+  } else if (-countItem < perPage) {
+    let reminder = allItems.length % perPage
+    dataInclude = allItems.slice(0, reminder);
+  } else dataInclude = []
+
+  const data = dataInclude.slice(0, perPage);
+  return data
+}

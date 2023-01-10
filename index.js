@@ -54,6 +54,7 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 io.on("connection", (socket) => {
+
   socket.on("vote", async (data) => {
     try {
       await presentationModel.findByIdAndUpdate(data._id, data);
@@ -143,6 +144,18 @@ io.on("connection", (socket) => {
       io.emit("updateQuestion", null);
     }
   });
+
+  //💯
+  socket.on("join_presentation", (data) => {
+    socket.join(data);
+    console.log(`User with ID: ${socket.id} joined room: ${data}`);
+  });
+
+  socket.on("sendMessage", (data) => {
+    io.to(data.room).emit("receiveMessage", data);
+    io.to(data.room).emit("messageToNotify", data);
+  });
+
 });
 
 server.listen(process.env.PORT || 1400, () => {

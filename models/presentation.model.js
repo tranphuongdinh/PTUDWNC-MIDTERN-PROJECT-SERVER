@@ -21,6 +21,7 @@ const Presentation = new mongoose.Schema({
       ref: 'User',
     },
   ],
+  chat: [{ type: String }]
 });
 
 export default mongoose.model('Presentation', Presentation);
