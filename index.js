@@ -11,6 +11,7 @@ import route from "./components/root/root.route.js";
 import DbConnect from "./config/db/index.js";
 import presentationModel from "./models/presentation.model.js";
 import questionModel from "./models/question.model.js";
+import { updateHistory } from "./components/presentation/presentation.controller.js";
 
 dotenv.config({ path: findConfig(".env") });
 
@@ -54,7 +55,6 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 io.on("connection", (socket) => {
-
   socket.on("vote", async (data) => {
     try {
       await presentationModel.findByIdAndUpdate(data._id, data);
@@ -64,9 +64,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("clientChangeSlideIndex", (data) =>
-    io.emit("changeSlideIndex", data)
-  );
+  socket.on("clientChangeSlideIndex", (data) => io.emit("changeSlideIndex", data));
 
   socket.on("clientStartPresent", (data) => io.emit("startPresent", data));
 
@@ -145,6 +143,15 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("clientUpdateHistory", async (newHistory) => {
+    try {
+      await presentationModel.findByIdAndUpdate(newHistory.presentationId, { history: newHistory.data });
+      io.emit("updateHistory", newHistory);
+    } catch (error) {
+      io.emit("updateHistory", null);
+    }
+  });
+
   //💯
   socket.on("join_presentation", (data) => {
     socket.join(data);
@@ -155,7 +162,6 @@ io.on("connection", (socket) => {
     io.to(data.room).emit("receiveMessage", data);
     io.to(data.room).emit("messageToNotify", data);
   });
-
 });
 
 server.listen(process.env.PORT || 1400, () => {

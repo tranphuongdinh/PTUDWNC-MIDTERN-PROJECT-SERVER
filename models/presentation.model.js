@@ -7,6 +7,7 @@ const Presentation = new mongoose.Schema({
   slides: {
     type: String
   },
+  history: [],
   ownerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

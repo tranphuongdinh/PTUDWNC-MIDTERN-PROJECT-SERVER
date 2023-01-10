@@ -29,7 +29,7 @@ export const presentationDetail = async (req, res) => {
 };
 
 export const createPresentation = async (req, res) => {
-  const { name, groupId } = req.body;
+  const { name, groupId, history = [] } = req.body;
   const user = req.user;
 
   //Check name exists
@@ -48,6 +48,7 @@ export const createPresentation = async (req, res) => {
     isPublic: groupId ? false : true,
     isPresent: false,
     slides: JSON.stringify([]),
+    history,
     groupId,
   };
 
@@ -316,8 +317,6 @@ export const saveChat = async (req, res) => {
 export const clearChat = async (req, res) => {
   const presentationId = req.param('presentationId')
 
-  console.log(presentationId)
-
   //Get GroupInstance
   let presentationInstance;
 
@@ -348,8 +347,6 @@ export const getPreviousChat = async (req, res) => {
   const presentationId = req.params["presentId"];
   const page = req.params["page"];
   const perPage = 10;
-
-  console.log(presentationId, page)
 
   //Get GroupInstance
   let presentationInstance;
@@ -385,4 +382,16 @@ const getPaging = (page, perPage, allItems) => {
 
   const data = dataInclude.slice(0, perPage);
   return data
+}
+
+export const updateHistory = async (req, res) => {
+  const { data = [], presentationId } = req.body;
+
+  try {
+    await presentationModel.findByIdAndUpdate(presentationId, {history: data});
+  } catch (error) {
+    return res.status(INTERNAL_SERVER_STATUS_CODE).json(APIResponse(STATUS.ERROR, error.message));
+  }
+
+  return res.status(SUCCESS_STATUS_CODE).json(APIResponse(STATUS.OK, "Update history successfully"));
 }

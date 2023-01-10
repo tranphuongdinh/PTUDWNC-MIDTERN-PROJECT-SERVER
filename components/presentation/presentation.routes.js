@@ -1,6 +1,6 @@
 import express from "express";
 import authenticationMiddleware from "../../middleware/auth.middleware.js";
-import { addCollaborator, createPresentation, deletePresentation, getPresentationByIds, getQuestions, presentationDetail, removeCollaborator, updatePresentation, saveChat, clearChat, getPreviousChat } from "./presentation.controller.js";
+import { addCollaborator, createPresentation, deletePresentation, getPresentationByIds, getQuestions, presentationDetail, removeCollaborator, updatePresentation, saveChat, clearChat, getPreviousChat, updateHistory } from "./presentation.controller.js";
 const router = express.Router();
 
 // POST: Interact with member
@@ -21,5 +21,8 @@ router.get("/questions/:id", getQuestions);
 router.get('/chat/:page/:presentId', getPreviousChat)
 router.post('/chat/save', saveChat)
 router.delete('/chat/clear/:presentationId', clearChat)
+
+// History 
+router.put('/history', updateHistory)
 
 export default router;
