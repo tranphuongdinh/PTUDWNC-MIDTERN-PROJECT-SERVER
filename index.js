@@ -112,22 +112,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("clientUpdateQuestion", async (data) => {
-    try {
-      const newQuestion = await questionModel.findOneAndUpdate(
-        { _id: data?._id },
-        {
-          $set: {
-            vote: data.vote,
-          },
-        }
-      );
-      io.emit("updateQuestion", newQuestion);
-    } catch (error) {
-      io.emit("updateQuestion", null);
-    }
-  });
-
   socket.on("clientUpdateHistory", async (newHistory) => {
     try {
       await presentationModel.findByIdAndUpdate(newHistory.presentationId, { history: newHistory.data });
